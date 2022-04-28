@@ -6,9 +6,9 @@ export default class Filters {
     return FILTERS_TEMPLATE;
   }
 
-  getElement(card) {
+  getElement() {
     if (!this.element) {
-      this.element = createElement(this.getTemplate(card));
+      this.element = createElement(this.getTemplate());
     }
     return this.element;
   }

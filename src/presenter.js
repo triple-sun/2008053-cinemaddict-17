@@ -30,11 +30,12 @@ pageMainSection.append(navigationElement);
 pageMainSection.append(filtersElement);
 pageMainSection.append(filmsElement);
 
-render(new UserTitleView(), pageHeaderSection);
-render(new Navigation(), navigationElement);
-render(new Filters(), filtersElement);
 for (let i = 0; i < MAX_CARDS; i++) {
   render(new FilmCard(), filmsListContainer);
 }
+
+render(new UserTitleView(), pageHeaderSection);
+render(new Navigation(), navigationElement);
+render(new Filters(), filtersElement);
 render(new ShowMoreButtonView(), filmsListElement);
 render(new MoviePopup, pageBody);
