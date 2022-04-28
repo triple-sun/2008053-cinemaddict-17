@@ -18,4 +18,8 @@ export default class NavigationView {
     }
     return this.element;
   }
+
+  removeElement() {
+    this.element = null;
+  }
 }

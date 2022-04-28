@@ -18,4 +18,8 @@ export default class UserTitleView {
     }
     return this.element;
   }
+
+  removeElement() {
+    this.element = null;
+  }
 }

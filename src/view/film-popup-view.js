@@ -176,4 +176,8 @@ export default class FilmPopupView {
     }
     return this.element;
   }
+
+  removeElement() {
+    this.element = null;
+  }
 }
