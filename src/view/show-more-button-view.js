@@ -1,9 +1,10 @@
 import { createElement } from '../render.js';
-import { NAVIGATION_TEMPLATE } from '../constants.js';
 
-export default class Navigation {
+const createShowMoreButtonViewTemplate = () => '<button class="films-list__show-more">Show more</button>';
+
+export default class ShowMoreButtonView {
   getTemplate() {
-    return NAVIGATION_TEMPLATE;
+    return createShowMoreButtonViewTemplate();
   }
 
   getElement() {

@@ -1,50 +1,6 @@
-const MAX_CARDS = 5;
+import { createElement } from '../render.js';
 
-const USER_TITLE_TEMPLATE = `
-<section class="header__profile profile">
-<p class="profile__rating">Movie Buff</p>
-<img class="profile__avatar" src="images/bitmap@2x.png" alt="Avatar" width="35" height="35">
-</section>
-`;
-
-const NAVIGATION_TEMPLATE = `
-    <a href="#all" class="main-navigation__item main-navigation__item--active">All movies</a>
-    <a href="#watchlist" class="main-navigation__item">Watchlist <span class="main-navigation__item-count">13</span></a>
-    <a href="#history" class="main-navigation__item">History <span class="main-navigation__item-count">4</span></a>
-    <a href="#favorites" class="main-navigation__item">Favorites <span class="main-navigation__item-count">8</span></a>
-    `;
-
-const FILTERS_TEMPLATE = `
-    <li><a href="#" class="sort__button sort__button--active">Sort by default</a></li>
-    <li><a href="#" class="sort__button">Sort by date</a></li>
-    <li><a href="#" class="sort__button">Sort by rating</a></li>
-  `;
-
-const FILMS_LIST_TITLE = '<h2 class="films-list__title visually-hidden">All movies. Upcoming</h2>';
-
-const CARD_TEMPLATE = `<article class="film-card">
-      <a class="film-card__link">
-       <h3 class="film-card__title">The Dance of Life</h3>
-        <p class="film-card__rating">8.3</p>
-        <p class="film-card__info">
-        <span class="film-card__year">1929</span>
-        <span class="film-card__duration">1h 55m</span>
-        <span class="film-card__genre">Musical</span>
-      </p>
-      <img src="./images/posters/the-dance-of-life.jpg" alt="" class="film-card__poster">
-      <p class="film-card__description">Burlesque comic Ralph "Skid" Johnson (Skelly), and specialty dancer Bonny Lee King (Carroll), end up together on a cold, rainy night at a tr…</p>
-      <span class="film-card__comments">5 comments</span>
-    </a>
-    <div class="film-card__controls">
-      <button class="film-card__controls-item film-card__controls-item--add-to-watchlist" type="button">Add to watchlist</button>
-      <button class="film-card__controls-item film-card__controls-item--mark-as-watched" type="button">Mark as watched</button>
-      <button class="film-card__controls-item film-card__controls-item--favorite" type="button">Mark as favorite</button>
-    </div>
-  </article>`;
-
-const SHOW_MORE_BUTTON_TEMPLATE = '<button class="films-list__show-more">Show more</button>';
-
-const POPUP_TEMPLATE = `<section class="film-details">
+const createFilmPopupTemplate = () => (`<section class="film-details">
 <form class="film-details__inner" action="" method="get">
   <div class="film-details__top-container">
     <div class="film-details__close">
@@ -207,7 +163,17 @@ const POPUP_TEMPLATE = `<section class="film-details">
     </section>
   </div>
 </form>
-</section>`;
+</section>`);
 
+export default class FilmPopupView {
+  getTemplate() {
+    return createFilmPopupTemplate();
+  }
 
-export { MAX_CARDS, USER_TITLE_TEMPLATE, NAVIGATION_TEMPLATE, FILTERS_TEMPLATE, FILMS_LIST_TITLE, CARD_TEMPLATE, SHOW_MORE_BUTTON_TEMPLATE, POPUP_TEMPLATE };
+  getElement() {
+    if (!this.element) {
+      this.element = createElement(this.getTemplate());
+    }
+    return this.element;
+  }
+}
