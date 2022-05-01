@@ -1,11 +1,13 @@
 import { createElement } from '../../render.js';
 import { humanizeReleaseDate, humanizeRuntime } from '../../util.js';
 
+const createGenreTemplate = (filmGenre) => `<span class="film-details__genre">${filmGenre}</span>`;
+
 const createFilmPopupTopSectionTemplate = (film) => {
   const {filmInfo} = film;
   const {title, poster, ageRating, totalRating, director, writers, actors, release, runtime, genre, description} = filmInfo;
 
-  const createGenresTemplate = (filmGenre) => `<span class="film-details__genre">${filmGenre}</span>`;
+  const insertGenreElements = () => [...genre].map(createGenreTemplate).join('');
 
   return (`<div class="film-details__top-container">
   <div class="film-details__close">
@@ -37,11 +39,11 @@ const createFilmPopupTopSectionTemplate = (film) => {
       </tr>
       <tr class="film-details__row">
         <td class="film-details__term">Writers</td>
-        <td class="film-details__cell">${writers.join()}</td>
+        <td class="film-details__cell">${writers.join(', ')}</td>
       </tr>
       <tr class="film-details__row">
         <td class="film-details__term">Actors</td>
-        <td class="film-details__cell">${actors.join()}</td>
+        <td class="film-details__cell">${actors.join(', ')}</td>
       </tr>
       <tr class="film-details__row">
         <td class="film-details__term">Release Date</td>
@@ -57,7 +59,7 @@ const createFilmPopupTopSectionTemplate = (film) => {
       </tr>
       <tr class="film-details__row">
         <td class="film-details__term">Genres</td>
-        <td class="film-details__cell">${createGenresTemplate(genre)}</tr>
+        <td class="film-details__cell">${insertGenreElements()}</tr>
     </table>
 
     <p class="film-details__film-description">${description}</p>

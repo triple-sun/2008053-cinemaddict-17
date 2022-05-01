@@ -23,11 +23,10 @@ const getRandomIntegerArray = (length, max) => Array(length).fill().map(() => Ma
 const getRandomIndex = (arr) => arr[getRandomInteger(0, arr.length - 1)];
 
 const getRandomArrayElements = (arr, amount) => {
-  const MAX_INDEX = arr.length - 1;
-  const START_INDEX = getRandomInteger(0, (MAX_INDEX - amount));
-  const STOP_INDEX = getRandomInteger(START_INDEX + 1, MAX_INDEX);
-  const ELEMENTS = arr.slice(START_INDEX, STOP_INDEX);
-
+  const ELEMENTS = [];
+  for (let i = 0; i <= amount; i++) {
+    ELEMENTS.push(getRandomIndex(arr));
+  }
   return ELEMENTS;
 };
 

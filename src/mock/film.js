@@ -46,7 +46,8 @@ export const generateFilm = () => {
       },
       runtime: RUNTIME,
       genre: [
-        'Comedy'
+        'Comedy',
+        'Thriller'
       ],
       description: DESCRIPTION
     },
