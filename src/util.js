@@ -23,11 +23,11 @@ const getRandomIntegerArray = (length, max) => Array(length).fill().map(() => Ma
 const getRandomIndex = (arr) => arr[getRandomInteger(0, arr.length - 1)];
 
 const getRandomArrayElements = (arr, amount) => {
-  const ELEMENTS = [];
+  const elements = [];
   for (let i = 0; i <= amount; i++) {
-    ELEMENTS.push(getRandomIndex(arr));
+    elements.push(getRandomIndex(arr));
   }
-  return ELEMENTS;
+  return elements;
 };
 
 const generateSentences = (amount) => getRandomArrayElements(MOCK_SENTENCES, amount).join(' ');
