@@ -18,6 +18,7 @@ import { render } from '../render.js';
 const FILM_CARD_LINK_CLASS = '.film-card__link';
 const POPUP_SECTION_CLASS = 'film-details';
 const POPUP_CLOSE_BUTTON_CLASS = '.film-details__close-btn';
+const DOCUMENT_NO_SCROLL_CLASS = 'hide-overflow';
 
 export default class FilmsSectionPresenter {
   #popupCommentsList = null;
@@ -49,45 +50,23 @@ export default class FilmsSectionPresenter {
     render(this.#filmsSectionComponent, this.#filmsSectionContainer);
     render(this.#filmsListComponent, this.#filmsSectionComponent.element);
     render(this.#filmsListContainer, this.#filmsListComponent.element);
-
     for (let i = 0; i < this.#filmCards.length; i++) {
       this.#renderCard(this.#filmCards[i]);
     }
-
     render(new ShowMoreButtonView(), this.#filmsListComponent.element);
   };
 
   #renderCard = (film) => {
     const cardComponent = new FilmCardView(film);
-
-    const filmCardClickHandler = () => {
-      this.#renderPopup(film);
-    };
+    const filmCardClickHandler = () => this.#renderPopup(film);
 
     cardComponent.element.querySelector(FILM_CARD_LINK_CLASS).addEventListener('click', filmCardClickHandler);
     render(cardComponent, this.#filmsListContainer.element);
   };
 
   #renderPopup = (film) => {
-    const hideFilmPopup = () => {
-      if (this.#popupContainer.lastChild.className === POPUP_SECTION_CLASS) {
-        this.#popupContainer.removeChild(this.#popupContainer.lastChild);
-        this.#popupContainer.classList.remove('hide-overflow');
-      }
-    };
-
-    const popupCloseButtonClickHandler = () => hideFilmPopup();
-
-    const popupEscKeydownHandler = (evt) => {
-      if (evt.key === 'Escape' || evt.key === 'Esc') {
-        evt.preventDefault();
-        hideFilmPopup();
-        document.removeEventListener('keydown', popupEscKeydownHandler);
-      }
-    };
-
-    hideFilmPopup();
-
+    this.#hidePopup();
+    this.#popupContainer.classList.add(DOCUMENT_NO_SCROLL_CLASS);
     this.#commentsModel = new CommentsModel(film);
     this.#comments = [...this.#commentsModel.comments];
     this.#popupCommentsWrap = new FilmPopupCommentsWrapView(film.comments);
@@ -97,8 +76,6 @@ export default class FilmsSectionPresenter {
     this.#popupBottomContainer = new FilmPopupBottomContainerView();
     this.#popupCommentsList = new FilmPopupCommentsListView();
     this.#popupTopContainer = new FilmPopupTopContainerView(film);
-
-    this.#popupContainer.classList.add('hide-overflow');
 
     render(this.#popupFormComponent, this.#popupSectionComponent.element);
     render(this.#popupTopContainer, this.#popupFormComponent.element);
@@ -110,10 +87,17 @@ export default class FilmsSectionPresenter {
     render(this.#newCommentForm, this.#popupCommentsWrap.element);
     render(this.#popupSectionComponent, this.#popupContainer);
 
+    this.#popupSectionComponent.element.querySelector(POPUP_CLOSE_BUTTON_CLASS).addEventListener('click', this.#popupCloseButtonClickHandler);
+    document.addEventListener('keydown', this.#popupEscKeydownHandler);
 
-    this.#popupSectionComponent.element.querySelector(POPUP_CLOSE_BUTTON_CLASS).addEventListener('click', popupCloseButtonClickHandler);
-    document.addEventListener('keydown', (evt) => popupEscKeydownHandler(evt));
+  };
 
+  #hidePopup = () => {
+    if (this.#popupContainer.lastChild.className === POPUP_SECTION_CLASS) {
+      this.#popupContainer.removeChild(this.#popupContainer.lastChild);
+      this.#popupContainer.classList.remove(DOCUMENT_NO_SCROLL_CLASS);
+      document.removeEventListener('keydown', this.#popupEscKeydownHandler);
+    }
   };
 
   #renderComment = (comment) => {
@@ -122,4 +106,12 @@ export default class FilmsSectionPresenter {
     render(commentComponent, this.#popupCommentsWrap.element);
   };
 
+  #popupEscKeydownHandler = (evt) => {
+    if (evt.key === 'Escape' || evt.key === 'Esc') {
+      evt.preventDefault();
+      this.#hidePopup();
+    }
+  };
+
+  #popupCloseButtonClickHandler = () => this.#hidePopup();
 }
