@@ -33,18 +33,23 @@ const createFilmPopupTemplate = () => (
 );
 
 export default class FilmPopupNewCommentView {
-  getTemplate() {
-    return createFilmPopupTemplate(this.film);
+  #element = null;
+
+  get template() {
+    return createFilmPopupTemplate();
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
+  get element() {
+    if (!this.#element) {
+      this.#element = createElement(this.template);
     }
-    return this.element;
+
+    return this.#element;
   }
 
   removeElement() {
-    this.element = null;
+    this.#element = null;
   }
 }
+
+
