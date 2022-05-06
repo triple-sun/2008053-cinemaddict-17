@@ -52,9 +52,6 @@ export default class FilmsSectionPresenter {
     render(this.#filmsSectionComponent, this.#filmsSectionContainer);
     render(this.#filmsListComponent, this.#filmsSectionComponent.element);
     render(this.#filmsListContainer, this.#filmsListComponent.element);
-    if (this.#films.length === 0) {
-      return render(this.#filmsListEmpty, this.#filmsListContainer.element);
-    }
     this.#renderCardsList();
   };
 
@@ -74,22 +71,26 @@ export default class FilmsSectionPresenter {
   };
 
   #renderCardsList = () => {
-    this.#renderCards();
-    if (this.#films.length > CARDS_PER_STEP) {
-      this.#renderShowMoreButton();
+    if (this.#films.length === 0) {
+      render(this.#filmsListEmpty, this.#filmsListContainer.element);
     }
+    this.#renderCards();
+    this.#renderShowMoreButton();
   };
 
 
   #renderShowMoreButton = () => {
-    render(this.#showMoreButtonComponent, this.#filmsListComponent.element);
-    this.#showMoreButtonComponent.setClickHandler(this.#handleShowMoreButtonClick);
+    if (this.#films.length > CARDS_PER_STEP) {
+      render(this.#showMoreButtonComponent, this.#filmsListComponent.element);
+      this.#showMoreButtonComponent.setClickHandler(this.#handleShowMoreButtonClick);
+    }
   };
 
   #renderPopup = (film) => {
     if (this.#popupSectionComponent) {
       this.#hidePopup();
     }
+
     this.#popupSectionComponent = new FilmPopupSectionView();
     this.#popupFormComponent = new FilmPopupFormView();
     this.#popupTopContainerComponent = new FilmPopupTopContainerView(film);
