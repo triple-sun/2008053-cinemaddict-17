@@ -1,5 +1,7 @@
-import { createElement } from '../../render.js';
-import { humanizeReleaseDate, humanizeRuntime } from '../../util.js';
+import AbstractView from '../../framework/view/abstract-view.js';
+import { humanizeReleaseDate, humanizeRuntime } from '../../utils/film-view.js';
+
+const POPUP_CLOSE_BUTTON_CLASS = '.film-details__close-btn';
 
 const createGenreTemplate = (filmGenre) => `<span class="film-details__genre">${filmGenre}</span>`;
 
@@ -73,10 +75,9 @@ const createFilmPopupTopSectionTemplate = (film) => {
 </section>
 </div>`);};
 
-export default class FilmPopupTopContainerView {
-  #element = null;
-
+export default class FilmPopupTopContainerView extends AbstractView {
   constructor(film) {
+    super();
     this.film = film;
   }
 
@@ -84,15 +85,13 @@ export default class FilmPopupTopContainerView {
     return createFilmPopupTopSectionTemplate(this.film);
   }
 
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
+  setCloseButtonClickHandler = (cb) => {
+    this._callback.click = cb;
+    this.element.querySelector(POPUP_CLOSE_BUTTON_CLASS).addEventListener('click', this.#closeButtonClickHandler);
+  };
 
-    return this.#element;
-  }
-
-  removeElement() {
-    this.#element = null;
-  }
+  #closeButtonClickHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.click();
+  };
 }

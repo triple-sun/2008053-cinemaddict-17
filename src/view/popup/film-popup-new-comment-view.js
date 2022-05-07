@@ -1,6 +1,6 @@
-import { createElement } from '../../render.js';
+import AbstractView from '../../framework/view/abstract-view.js';
 
-const createFilmPopupTemplate = () => (
+const createFilmPopupNewCommentTemplate = () => (
   `<div class="film-details__new-comment">
   <div class="film-details__add-emoji-label"></div>
 
@@ -32,23 +32,9 @@ const createFilmPopupTemplate = () => (
   </div>`
 );
 
-export default class FilmPopupNewCommentView {
-  #element = null;
-
+export default class FilmPopupNewCommentVie extends AbstractView {
   get template() {
-    return createFilmPopupTemplate();
-  }
-
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-
-    return this.#element;
-  }
-
-  removeElement() {
-    this.#element = null;
+    return createFilmPopupNewCommentTemplate();
   }
 }
 
