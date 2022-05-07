@@ -71,7 +71,7 @@ export default class FilmsSectionPresenter {
   };
 
   #renderCardsList = () => {
-    if (this.#films.length === 0) {
+    if (!this.#films.length) {
       render(this.#filmsListEmpty, this.#filmsListContainer.element);
     }
     this.#renderCards();
@@ -107,9 +107,7 @@ export default class FilmsSectionPresenter {
     render(this.#popupTopContainerComponent, this.#popupFormComponent.element);
     render(this.#popupBottomContainerComponent, this.#popupFormComponent.element);
     render(this.#popupCommentsWrapComponent, this.#popupBottomContainerComponent.element);
-    for (let i = 0; i < this.#popupComments.length; i++) {
-      this.#renderComment(this.#popupComments[i]);
-    }
+    this.#popupComments.forEach(this.#renderComment);
     render(this.#popupNewCommentFieldComponent, this.#popupCommentsWrapComponent.element);
     render(this.#popupSectionComponent, this.#popupContainerComponent);
 
