@@ -2,10 +2,13 @@ import AbstractView from '../../framework/view/abstract-view.js';
 import { getReleaseYear, humanizeRuntime } from '../../utils/film-view.js';
 
 const FILM_CARD_LINK_CLASS = '.film-card__link';
+const FILM_CARD_CONTROLS_CLASS = '.film-card__controls-item';
+const FILM_CARD_CONTROL_ACTIVE_CLASS = 'film-card__controls-item--active';
 
 const createFilmCardTemplate = (film) => {
   const {comments, filmInfo} = film;
   const {title, totalRating, poster, release, runtime, genre, description} = filmInfo;
+
   const duration = humanizeRuntime(runtime);
 
   return (
@@ -49,5 +52,18 @@ export default class FilmCardView extends AbstractView {
   #clickHandler = (evt) => {
     evt.preventDefault();
     this._callback.click();
+  };
+
+  setUserListsStatusClass = () => {
+    const {userDetails} = this.film;
+    const {watchlist, alreadyWatched, favourite} = userDetails;
+    const userLists = [watchlist, alreadyWatched, favourite];
+
+    this.element.querySelectorAll(FILM_CARD_CONTROLS_CLASS)
+      .forEach((element, index) => {
+        if (userLists[index]) {
+          element.classList.add(FILM_CARD_CONTROL_ACTIVE_CLASS);
+        }
+      });
   };
 }
