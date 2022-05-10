@@ -3,6 +3,8 @@ const MAX_FILMS = 9;
 const MAX_COMMENT_ID = 100;
 const MAX_COMMENTS = 10;
 const MAX_SENTENCES = 5;
+const MIN_YEAR = 1965;
+const MAX_YEAR = 2022;
 
 const EMOJIS = ['smile', 'sleeping', 'puke', 'angry'];
 
@@ -22,4 +24,13 @@ const MOCK_SENTENCES = [
   'In rutrum ac purus sit amet tempus.'
 ];
 
-export { CARDS_PER_STEP, MAX_FILMS, MAX_COMMENT_ID, MAX_COMMENTS, MAX_SENTENCES, EMOJIS, MOCK_TITLES, MOCK_SENTENCES };
+const FilterType = {
+  ALL: 'All',
+  WATCHLIST: 'Watchlist',
+  HISTORY: 'History',
+  FAVOURITES: 'Favourites'
+};
+
+const SortTypes = ['default', 'date', 'rating'];
+
+export { CARDS_PER_STEP, MAX_FILMS, MAX_COMMENT_ID, MAX_COMMENTS, MAX_SENTENCES, MIN_YEAR, MAX_YEAR, EMOJIS, MOCK_TITLES, MOCK_SENTENCES, FilterType, SortTypes };

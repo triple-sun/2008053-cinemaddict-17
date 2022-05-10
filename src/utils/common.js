@@ -19,6 +19,8 @@ const getRandomFloat = (a, b, decimal = 1) => {
 //https://stackoverflow.com/a/46382735
 const getRandomIntegerArray = (length, max) => Array(length).fill().map(() => Math.round(Math.random() * max));
 
+const getRandomBoolean = () => Math.random() < 0.5;
+
 const getRandomIndex = (arr) => arr[getRandomInteger(0, arr.length - 1)];
 
 const getRandomArrayElements = (arr, amount) => {
@@ -29,8 +31,15 @@ const getRandomArrayElements = (arr, amount) => {
   return elements;
 };
 
+//https://gist.github.com/miguelmota/5b67e03845d840c949c4
+const getRandomDate = (startYear, endYear) => {
+  const startDate = new Date(startYear, 0, 1);
+  const endDate = new Date(endYear, 0, 1);
+  return new Date(startDate.getTime() + Math.random() * (endDate.getTime() - startDate.getTime()));
+};
+
 const generateSentences = (amount) => getRandomArrayElements(MOCK_SENTENCES, amount).join(' ');
 
 const makeArrayOfKeyValues = (arr, key) => arr.map((element) => element.get(key));
 
-export {getRandomInteger, getRandomFloat, getRandomIntegerArray, getRandomIndex, getRandomArrayElements, generateSentences, makeArrayOfKeyValues};
+export {getRandomInteger, getRandomFloat, getRandomIntegerArray, getRandomBoolean, getRandomIndex, getRandomArrayElements, getRandomDate, generateSentences, makeArrayOfKeyValues};

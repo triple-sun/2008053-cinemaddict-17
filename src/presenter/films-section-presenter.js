@@ -36,8 +36,8 @@ export default class FilmsSectionPresenter {
   #popupComments = [];
 
   #filmsSectionComponent = new FilmsSectionView();
-  #filmsListComponent = new FilmsListSectionView();
-  #filmsListContainer = new FilmsListContainerView();
+  #filmsListSectionComponent = new FilmsListSectionView();
+  #filmsListContainerComponent = new FilmsListContainerView();
   #showMoreButtonComponent = new ShowMoreButtonView();
   #filmsListEmpty = new FilmsListEmptyView();
 
@@ -50,8 +50,8 @@ export default class FilmsSectionPresenter {
 
   init = () => {
     render(this.#filmsSectionComponent, this.#filmsSectionContainer);
-    render(this.#filmsListComponent, this.#filmsSectionComponent.element);
-    render(this.#filmsListContainer, this.#filmsListComponent.element);
+    render(this.#filmsListSectionComponent, this.#filmsSectionComponent.element);
+    render(this.#filmsListContainerComponent, this.#filmsListSectionComponent.element);
     this.#renderCardsList();
   };
 
@@ -59,8 +59,9 @@ export default class FilmsSectionPresenter {
     const cardComponent = new FilmCardView(film);
     const handleFilmCardClick = () => this.#renderPopup(film);
 
+    cardComponent.setUserListsStatusClass();
     cardComponent.setClickHandler(handleFilmCardClick);
-    render(cardComponent, this.#filmsListContainer.element);
+    render(cardComponent, this.#filmsListContainerComponent.element);
   };
 
   #renderCards = () => {
@@ -71,8 +72,9 @@ export default class FilmsSectionPresenter {
   };
 
   #renderCardsList = () => {
-    if (this.#films.length === 0) {
-      render(this.#filmsListEmpty, this.#filmsListContainer.element);
+    this.#filmsListContainerComponent.element.innerHTML = '';
+    if (!this.#films.length) {
+      render(this.#filmsListEmpty, this.#filmsListContainerComponent.element);
     }
     this.#renderCards();
     this.#renderShowMoreButton();
@@ -81,7 +83,7 @@ export default class FilmsSectionPresenter {
 
   #renderShowMoreButton = () => {
     if (this.#films.length > CARDS_PER_STEP) {
-      render(this.#showMoreButtonComponent, this.#filmsListComponent.element);
+      render(this.#showMoreButtonComponent, this.#filmsListSectionComponent.element);
       this.#showMoreButtonComponent.setClickHandler(this.#handleShowMoreButtonClick);
     }
   };
@@ -107,14 +109,18 @@ export default class FilmsSectionPresenter {
     render(this.#popupTopContainerComponent, this.#popupFormComponent.element);
     render(this.#popupBottomContainerComponent, this.#popupFormComponent.element);
     render(this.#popupCommentsWrapComponent, this.#popupBottomContainerComponent.element);
-    for (let i = 0; i < this.#popupComments.length; i++) {
-      this.#renderComment(this.#popupComments[i]);
-    }
+    this.#popupComments.forEach(this.#renderComment);
     render(this.#popupNewCommentFieldComponent, this.#popupCommentsWrapComponent.element);
     render(this.#popupSectionComponent, this.#popupContainerComponent);
 
     this.#popupTopContainerComponent.setCloseButtonClickHandler(this.#handlePopupCloseButtonClick);
     document.addEventListener('keydown', this.#popupEscKeydownHandler);
+  };
+
+  #renderComment = (comment) => {
+    const commentComponent = new FilmPopupCommentView(comment);
+
+    render(commentComponent, this.#popupCommentsWrapComponent.element);
   };
 
   #hidePopup = () => {
@@ -124,26 +130,20 @@ export default class FilmsSectionPresenter {
     document.removeEventListener('keydown', this.#popupEscKeydownHandler);
   };
 
-  #renderComment = (comment) => {
-    const commentComponent = new FilmPopupCommentView(comment);
-
-    render(commentComponent, this.#popupCommentsWrapComponent.element);
-  };
-
-  #handleShowMoreButtonClick = () => {
-    if (this.#films.length - this.#renderedFilmIndex <= CARDS_PER_STEP) {
-      this.#filmsListComponent.element.removeChild(this.#showMoreButtonComponent.element);
-      this.#showMoreButtonComponent.element.remove();
-      this.#showMoreButtonComponent.removeElement();
-    }
-    this.#renderCards();
-  };
-
   #popupEscKeydownHandler = (evt) => {
     if (evt.key === 'Escape' || evt.key === 'Esc') {
       evt.preventDefault();
       this.#hidePopup();
     }
+  };
+
+  #handleShowMoreButtonClick = () => {
+    if (this.#films.length - this.#renderedFilmIndex <= CARDS_PER_STEP) {
+      this.#filmsListSectionComponent.element.removeChild(this.#showMoreButtonComponent.element);
+      this.#showMoreButtonComponent.element.remove();
+      this.#showMoreButtonComponent.removeElement();
+    }
+    this.#renderCards();
   };
 
   #handlePopupCloseButtonClick = () => this.#hidePopup();

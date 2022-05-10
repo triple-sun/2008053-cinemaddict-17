@@ -9,7 +9,9 @@ const createFilmPopupTopSectionTemplate = (film) => {
   const {filmInfo} = film;
   const {title, poster, ageRating, totalRating, director, writers, actors, release, runtime, genre, description} = filmInfo;
 
-  const insertGenreElements = () => [...genre].map(createGenreTemplate).join('');
+  const insertGenreElements = () => [...genre]
+    .map(createGenreTemplate)
+    .join('');
 
   return (`<div class="film-details__top-container">
   <div class="film-details__close">

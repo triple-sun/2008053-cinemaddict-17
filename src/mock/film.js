@@ -1,13 +1,11 @@
-import { getRandomInteger, getRandomIndex, getRandomFloat, getRandomIntegerArray, generateSentences } from '../utils/common.js';
-import { MAX_COMMENT_ID, MAX_COMMENTS, MAX_SENTENCES, MOCK_TITLES } from '../const.js';
+import { getRandomInteger, getRandomIndex, getRandomFloat, getRandomIntegerArray, getRandomBoolean, getRandomDate, generateSentences } from '../utils/common.js';
+import { MAX_COMMENT_ID, MAX_COMMENTS, MAX_SENTENCES, MIN_YEAR, MAX_YEAR, MOCK_TITLES } from '../const.js';
 
 const MAX_FILM_ID = 100;
 const MAX_RATING = 10;
 const MAX_AGE = 18;
 const MIN_RUNTIME = 60;
 const MAX_RUNTIME = 240;
-const MIN_YEAR = 1940;
-const MAX_YEAR = 2022;
 
 const getPosterURLFromTitle = (title) => `images/posters/${  title.replace(/ /gi, '-').toLowerCase()  }.jpg`;
 
@@ -33,7 +31,7 @@ const generateFilm = () => {
         'Morgan Freeman'
       ],
       release: {
-        date: `${getRandomInteger(MIN_YEAR, MAX_YEAR)}-05-11T00:00:00.000Z`,
+        date: `${getRandomDate(MIN_YEAR, MAX_YEAR)}`,
         releaseCountry: 'Finland'
       },
       runtime: getRandomInteger(MIN_RUNTIME, MAX_RUNTIME),
@@ -44,11 +42,12 @@ const generateFilm = () => {
       description: generateSentences(getRandomInteger(1, MAX_SENTENCES))
     },
     userDetails: {
-      watchlist: false,
-      alreadyWatched: true,
-      watchingDate: '2019-04-12T16:12:32.554Z',
-      favorite: false
+      watchlist: getRandomBoolean(),
+      alreadyWatched: getRandomBoolean(),
+      watchingDate: `${getRandomDate(MIN_YEAR, MAX_YEAR)}`,
+      favourite: getRandomBoolean()
     }
   };
 };
 export {generateFilm};
+
