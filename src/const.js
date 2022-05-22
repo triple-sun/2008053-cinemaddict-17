@@ -6,6 +6,10 @@ const MAX_SENTENCES = 5;
 const MIN_YEAR = 1965;
 const MAX_YEAR = 2022;
 
+const FILM_CARD_CONTROLS_ACTIVE_CLASS = 'film-card__controls-item--active';
+const FILM_POPUP_CONTROLS_ACTIVE_CLASS = 'film-details__control-button--active';
+const DOCUMENT_NO_SCROLL_CLASS = 'hide-overflow';
+
 const EMOJIS = ['smile', 'sleeping', 'puke', 'angry'];
 
 const MOCK_TITLES = ['Sagebrush Trail', 'Santa Claus Conquers the Martians', 'The Dance of Life', 'The Great Flamarion', 'The Man With the Golden Arm'];
@@ -31,6 +35,10 @@ const FilterType = {
   FAVOURITES: 'Favourites'
 };
 
-const SortTypes = ['default', 'date', 'rating'];
+const SortType = {
+  DEFAULT: 'default',
+  SORRT_BY_DATE: 'sort-by-date',
+  SORT_BY_RATING: 'sort-by-rating',
+};
 
-export { CARDS_PER_STEP, MAX_FILMS, MAX_COMMENT_ID, MAX_COMMENTS, MAX_SENTENCES, MIN_YEAR, MAX_YEAR, EMOJIS, MOCK_TITLES, MOCK_SENTENCES, FilterType, SortTypes };
+export { CARDS_PER_STEP, MAX_FILMS, MAX_COMMENT_ID, MAX_COMMENTS, MAX_SENTENCES, MIN_YEAR, MAX_YEAR, FILM_CARD_CONTROLS_ACTIVE_CLASS, FILM_POPUP_CONTROLS_ACTIVE_CLASS, DOCUMENT_NO_SCROLL_CLASS, EMOJIS, MOCK_TITLES, MOCK_SENTENCES, FilterType, SortType };

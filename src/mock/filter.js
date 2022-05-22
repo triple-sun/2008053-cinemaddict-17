@@ -1,6 +1,6 @@
-import { filter } from '../utils/filters.js';
+import { filters } from '../utils/filters.js';
 
-const generateFilter = (films) => Object.entries(filter)
+const generateFilter = (films) => Object.entries(filters)
   .map(([filterName, filterFilms]) => ({
     name: filterName,
     target: `#${filterName.toLowerCase()}`,

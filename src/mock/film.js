@@ -1,7 +1,7 @@
 import { getRandomInteger, getRandomIndex, getRandomFloat, getRandomIntegerArray, getRandomBoolean, getRandomDate, generateSentences } from '../utils/common.js';
 import { MAX_COMMENT_ID, MAX_COMMENTS, MAX_SENTENCES, MIN_YEAR, MAX_YEAR, MOCK_TITLES } from '../const.js';
+import { nanoid } from 'nanoid';
 
-const MAX_FILM_ID = 100;
 const MAX_RATING = 10;
 const MAX_AGE = 18;
 const MIN_RUNTIME = 60;
@@ -15,7 +15,7 @@ const generateFilm = () => {
   const poster = getPosterURLFromTitle(title);
 
   return {
-    id: String(getRandomInteger(0, MAX_FILM_ID)),
+    id: nanoid(MAX_COMMENT_ID),
     comments: getRandomIntegerArray(commentQuantity, MAX_COMMENT_ID),
     filmInfo: {
       title: title,
