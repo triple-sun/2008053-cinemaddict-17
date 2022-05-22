@@ -45,7 +45,8 @@ export default class FilmsSectionPresenter {
   };
 
 
-  #renderNavigation = () => {;
+  #renderNavigation = () => {
+    const navigationComponent = new NavigationView(this.#filtersModel);
     render(navigationComponent, this.#pageMainSection);
   };
 
