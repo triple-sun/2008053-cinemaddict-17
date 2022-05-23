@@ -1,4 +1,4 @@
-import AbstractView from '../framework/view/abstract-view.js';
+import AbstractView from '../../framework/view/abstract-view.js';
 
 const createShowMoreButtonViewTemplate = () => '<button class="films-list__show-more">Show more</button>';
 

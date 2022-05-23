@@ -40,6 +40,18 @@ const getRandomDate = (startYear, endYear) => {
 
 const generateSentences = (amount) => getRandomArrayElements(MOCK_SENTENCES, amount).join(' ');
 
-const makeArrayOfKeyValues = (arr, key) => arr.map((element) => element.get(key));
+const updateItem = (items, update) => {
+  const index = items.findIndex((item) => item.id === update.id);
 
-export {getRandomInteger, getRandomFloat, getRandomIntegerArray, getRandomBoolean, getRandomIndex, getRandomArrayElements, getRandomDate, generateSentences, makeArrayOfKeyValues};
+  if (index === -1) {
+    return items;
+  }
+
+  return [
+    ...items.slice(0, index),
+    update,
+    ...items.slice(index + 1),
+  ];
+};
+
+export {getRandomInteger, getRandomFloat, getRandomIntegerArray, getRandomBoolean, getRandomIndex, getRandomDate, generateSentences, updateItem};
