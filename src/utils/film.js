@@ -6,8 +6,10 @@ const humanizeReleaseDate = (releaseDate) => dayjs(releaseDate).format('DD MMM Y
 
 const humanizeRuntime = (minutes) => `${String((minutes / 60).toFixed(2)).replace(/\./gi, 'h ')  }m`;
 
+const humanizeCommentDateTime = (date) => dayjs(date).format('YYYY/MM/DD HH:mm');
+
 const setUserListButtonActiveClass = (userList, controlsClass) => userList ? `${controlsClass}` : '';
 
 const createTemplatesFromArray = (arr, template, join = '') => arr.map(template).join(join);
 
-export {getReleaseYear, humanizeReleaseDate, humanizeRuntime, setUserListButtonActiveClass, createTemplatesFromArray};
+export {getReleaseYear, humanizeReleaseDate, humanizeRuntime, setUserListButtonActiveClass, createTemplatesFromArray, humanizeCommentDateTime};
