@@ -17,11 +17,11 @@ export default class FilmPopupPresenter {
     this.#onClose = onClose;
   }
 
-  init = (film) => {
+  init = (film, commentsModel) => {
     const prevPopupComponent = this.#popupComponent;
 
     this.#film = film;
-    this.#popupComponent = new FilmPopupView(film);
+    this.#popupComponent = new FilmPopupView(film, commentsModel);
 
     this.#popupComponent.setFavoriteClickHandler(this.#handleFavoriteClick);
     this.#popupComponent.setWatchlistClickHandler(this.#handleWatchlistClick);

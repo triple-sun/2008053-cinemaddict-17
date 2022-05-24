@@ -2,6 +2,7 @@ import { render, remove, replace } from '../framework/render.js';
 import FilmCardView from '../view/films/film-card-view.js';
 import FilmPopupPresenter from './film-popup-presenter.js';
 import { DOCUMENT_NO_SCROLL_CLASS } from '../const.js';
+import CommentsModel from '../model/comments-model.js';
 
 export default class FilmCardPresenter {
   #filmComponent = null;
@@ -9,6 +10,7 @@ export default class FilmCardPresenter {
   #changeData = null;
 
   #film = null;
+  #commentsModel = null;
   #popupPresenter = null;
   #onPopupOpen = null;
 
@@ -24,6 +26,8 @@ export default class FilmCardPresenter {
     const prevFilmComponent = this.#filmComponent;
 
     this.#film = film;
+
+    this.#commentsModel = new CommentsModel(film);
     this.#filmComponent = new FilmCardView(film);
 
     this.#filmComponent.setFavoriteClickHandler(this.#handleFavoriteClick);
@@ -32,7 +36,7 @@ export default class FilmCardPresenter {
     this.#filmComponent.setOpenPopupClickHandler(this.#handlePopupOpenClick);
 
     if (this.#isPopupOpen) {
-      this.#popupPresenter.init(film);
+      this.#popupPresenter.init(film, this.#commentsModel);
     }
 
     if (!prevFilmComponent) {
@@ -61,7 +65,7 @@ export default class FilmCardPresenter {
     this.#popupPresenter = new FilmPopupPresenter(this.#changeData, this.hidePopup);
 
     this.#onPopupOpen();
-    this.#popupPresenter.init(this.#film);
+    this.#popupPresenter.init(this.#film, this.#commentsModel);
     this.#isPopupOpen = true;
   };
 

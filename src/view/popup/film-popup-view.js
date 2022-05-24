@@ -1,6 +1,5 @@
 import dayjs from 'dayjs';
 import AbstractView from '../../framework/view/abstract-view.js';
-import CommentsModel from '../../model/comments-model.js';
 import { FILM_POPUP_CONTROLS_ACTIVE_CLASS } from '../../const.js';
 import { createTemplatesFromArray, humanizeReleaseDate, humanizeRuntime, setUserListButtonActiveClass } from '../../utils/film.js';
 
@@ -30,12 +29,10 @@ const createCommentTemplate = (filmComment) => {
   </li>`);
 };
 
-const createFilmPopupTopSectionTemplate = (film) => {
+const createFilmPopupTopSectionTemplate = (film, commentsModel) => {
   const {comments, filmInfo, userDetails} = film;
   const {title, poster, ageRating, totalRating, director, writers, actors, release, runtime, genre, description} = filmInfo;
   const {watchlist, alreadyWatched, favorite} = userDetails;
-
-  const commentsModel = new CommentsModel(film);
 
   const filmGenres = createTemplatesFromArray([...genre], createGenreTemplate);
   const filmComments = createTemplatesFromArray([...commentsModel.comments], createCommentTemplate);
@@ -147,14 +144,16 @@ const createFilmPopupTopSectionTemplate = (film) => {
 
 export default class FilmPopupView extends AbstractView {
   #film = null;
+  #commentsModel = null;
 
-  constructor(film) {
+  constructor(film, commentsModel) {
     super();
     this.#film = film;
+    this.#commentsModel = commentsModel;
   }
 
   get template() {
-    return createFilmPopupTopSectionTemplate(this.#film);
+    return createFilmPopupTopSectionTemplate(this.#film, this.#commentsModel);
   }
 
   setCloseButtonClickHandler = (cb) => {
