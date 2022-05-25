@@ -2,14 +2,14 @@ import { getRandomIndex, getRandomDate, generateSentences } from '../utils/commo
 import { MAX_COMMENT_ID, MAX_SENTENCES, MIN_YEAR, MAX_YEAR, EMOJIS } from '../const.js';
 import { nanoid } from 'nanoid';
 
-const generateComment = () => ({
-  id: nanoid(MAX_COMMENT_ID),
+const generateComment = (comment = generateSentences(MAX_SENTENCES), date = `${getRandomDate(MIN_YEAR, MAX_YEAR)}`, emotion = getRandomIndex(EMOJIS) ) => ({
+  id: nanoid(),
   author: 'Ilya O\'Reilly',
-  comment: generateSentences(MAX_SENTENCES),
-  date: `${getRandomDate(MIN_YEAR, MAX_YEAR)}`,
-  emotion: getRandomIndex(EMOJIS)
+  comment: comment,
+  date: date,
+  emotion: emotion
 });
 
 const COMMENTS = Array.from({length: MAX_COMMENT_ID}, generateComment);
 
-export { COMMENTS };
+export { COMMENTS, generateComment };
