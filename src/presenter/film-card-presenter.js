@@ -1,34 +1,41 @@
 import { render, remove, replace } from '../framework/render.js';
 import FilmCardView from '../view/films/film-card-view.js';
 import FilmPopupPresenter from './film-popup-presenter.js';
-import { DOCUMENT_NO_SCROLL_CLASS } from '../const.js';
+import { DOCUMENT_NO_SCROLL_CLASS, UpdateType } from '../const.js';
 import CommentsModel from '../model/comments-model.js';
 
 export default class FilmCardPresenter {
   #filmComponent = null;
   #filmsListContainerComponent = null;
-  #changeData = null;
+  #handleFilmUserDataUpdate = null;
+  #filmsModel = null;
+  #handleModelEvent = null;
 
   #film = null;
   #commentsModel = null;
   #popupPresenter = null;
-  #onPopupOpen = null;
+  #hidePopup = null;
 
   #isPopupOpen = false;
 
-  constructor(filmsListContainerComponent, changeData, onPopupOpen) {
+  constructor(filmsListContainerComponent, handleFilmUserDataUpdate, hidePopup, filmsModel, handleModelEvent) {
     this.#filmsListContainerComponent = filmsListContainerComponent;
-    this.#changeData = changeData;
-    this.#onPopupOpen = onPopupOpen;
+    this.#handleFilmUserDataUpdate = handleFilmUserDataUpdate;
+    this.#hidePopup = hidePopup;
+    this.#filmsModel = filmsModel;
+    this.#handleModelEvent = handleModelEvent;
+  }
+
+  get comments() {
+    return this.#commentsModel.comments;
   }
 
   init = (film) => {
     const prevFilmComponent = this.#filmComponent;
 
     this.#film = film;
-
-    this.#commentsModel = new CommentsModel(film);
     this.#filmComponent = new FilmCardView(film);
+    this.#commentsModel = new CommentsModel(film);
 
     this.#filmComponent.setFavoriteClickHandler(this.#handleFavoriteClick);
     this.#filmComponent.setWatchlistClickHandler(this.#handleWatchlistClick);
@@ -36,7 +43,7 @@ export default class FilmCardPresenter {
     this.#filmComponent.setOpenPopupClickHandler(this.#handlePopupOpenClick);
 
     if (this.#isPopupOpen) {
-      this.#popupPresenter.init(film, this.#commentsModel);
+      this.#popupPresenter.init(film, this.#commentsModel, this.#filmsModel);
     }
 
     if (!prevFilmComponent) {
@@ -62,39 +69,62 @@ export default class FilmCardPresenter {
   };
 
   #handlePopupOpenClick = () => {
-    this.#popupPresenter = new FilmPopupPresenter(this.#changeData, this.hidePopup);
-
-    this.#onPopupOpen();
-    this.#popupPresenter.init(this.#film, this.#commentsModel);
+    this.#hidePopup();
+    this.#popupPresenter = new FilmPopupPresenter(
+      this.#filmsModel,
+      this.#commentsModel,
+      this.hidePopup,
+      this.#handleWatchlistClick,
+      this.#handleAlreadyWatchedClick,
+      this.#handleFavoriteClick,
+    );
+    this.#popupPresenter.init(this.#film);
     this.#isPopupOpen = true;
   };
 
   #handleFavoriteClick = () => {
-    this.#changeData({
-      ...this.#film,
-      userDetails: {
-        ...this.#film.userDetails,
-        favorite: !this.#film.userDetails.favorite}
-    });
+    this.#handleFilmUserDataUpdate(
+      UpdateType.PATCH,
+      {
+        ...this.#film,
+        userDetails: {
+          ...this.#film.userDetails,
+          favorite: !this.#film.userDetails.favorite}
+      }
+    );
   };
 
   #handleWatchlistClick = () => {
-    this.#changeData({
-      ...this.#film,
-      userDetails: {
-        ...this.#film.userDetails,
-        watchlist: !this.#film.userDetails.watchlist
+    this.#handleFilmUserDataUpdate(
+      UpdateType.PATCH,
+      {
+        ...this.#film,
+        userDetails: {
+          ...this.#film.userDetails,
+          watchlist: !this.#film.userDetails.watchlist
+        }
       }
-    });
+    );
   };
 
   #handleAlreadyWatchedClick = () => {
-    this.#changeData({
-      ...this.#film,
-      userDetails: {
-        ...this.#film.userDetails,
-        alreadyWatched: !this.#film.userDetails.alreadyWatched
+    this.#handleFilmUserDataUpdate(
+      UpdateType.PATCH,
+      {
+        ...this.#film,
+        userDetails: {
+          ...this.#film.userDetails,
+          alreadyWatched: !this.#film.userDetails.alreadyWatched
+        }
+      });
+  };
+
+  #handleCommentDelete = () => {
+    this.#handleFilmUserDataUpdate(
+      UpdateType.PATCH,
+      {
+
       }
-    });
+    );
   };
 }

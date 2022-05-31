@@ -1,15 +1,37 @@
-import { COMMENTS } from '../mock/comment.js';
+import Observable from '../framework/observable.js';
+import { ALL_COMMENTS } from '../mock/comment.js';
 
-const getCommentByID = (id) => COMMENTS[id];
-
-export default class CommentsModel {
-  #comments = [];
+export default class CommentsModel extends Observable {
+  #film = null;
 
   constructor(film) {
-    this.#comments = film.comments.map(getCommentByID);
+    super();
+    this.#film = film;
   }
 
   get comments() {
-    return this.#comments;
+    return this.#film.comments.map((id) => ALL_COMMENTS.find((element) => element.id === id));
   }
+
+  addComment = (updateType, newComment) => {
+    this.#film.comments = [
+      newComment.id,
+      ...this.#film.comments,
+    ];
+
+    ALL_COMMENTS.push(newComment);
+
+    this._notify(updateType, this.#film);
+  };
+
+  deleteComment = (updateType, commentID) => {
+    const index = this.#film.comments.findIndex((comment) => comment === commentID);
+
+    this.#film.comments = [
+      ...this.#film.comments.slice(0, index),
+      ...this.#film.comments.slice(index + 1),
+    ];
+
+    this._notify(updateType, this.#film);
+  };
 }
