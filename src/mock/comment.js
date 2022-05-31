@@ -12,4 +12,7 @@ const generateComment = (comment = generateSentences(MAX_SENTENCES), date = getR
 
 const ALL_COMMENTS = Array.from({length: MAX_COMMENTS_TOTAL}, generateComment);
 
-export { ALL_COMMENTS, generateComment };
+export {
+  ALL_COMMENTS,
+  generateComment
+};

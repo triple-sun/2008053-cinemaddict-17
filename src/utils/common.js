@@ -40,4 +40,13 @@ const getRandomDate = (startYear = MIN_YEAR, endYear = MAX_YEAR) => {
 
 const generateSentences = (amount) => getRandomArrayElements(MOCK_SENTENCES, amount).join(' ');
 
-export {getRandomInteger, getRandomFloat, getRandomIntegerArray, getRandomBoolean, getRandomIndex, getRandomArrayElements, getRandomDate, generateSentences};
+export {
+  getRandomInteger,
+  getRandomFloat,
+  getRandomIntegerArray,
+  getRandomBoolean,
+  getRandomIndex,
+  getRandomArrayElements,
+  getRandomDate,
+  generateSentences
+};
