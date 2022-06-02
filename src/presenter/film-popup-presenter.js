@@ -1,5 +1,6 @@
-import FilmPopupView from '../view/popup/film-popup-view.js';
+import FilmPopupView from '../view/popup/popup-view.js';
 import { remove, render, RenderPosition, replace } from '../framework/render.js';
+import { UpdateType } from '../const.js';
 
 const DOCUMENT_NO_SCROLL_CLASS = 'hide-overflow';
 
@@ -8,28 +9,36 @@ const pageFooter = body.querySelector('footer');
 
 export default class FilmPopupPresenter {
   #popupComponent = null;
-  #changeData = null;
-  #onClose = null;
+
+  #handlePopupClose = null;
+  #handleWatchlistUpdate = null;
+  #handleWatchedUpdate = null;
+  #handleFavoriteUpdate = null;
+
+  #commentsModel = null;
   #film = null;
 
-  constructor (changeData, onClose) {
-    this.#changeData = changeData;
-    this.#onClose = onClose;
+  constructor (filmsModel, commentsModel, handlePopupClose, handleWatchlistUpdate, handleWatchedUpdate, handleFavoriteUpdate) {
+    this.#commentsModel = commentsModel;
+    this.#handlePopupClose = handlePopupClose;
+    this.#handleWatchlistUpdate = handleWatchlistUpdate;
+    this.#handleWatchedUpdate = handleWatchedUpdate;
+    this.#handleFavoriteUpdate = handleFavoriteUpdate;
   }
 
-  init = (film, commentsModel) => {
+  init = (film) => {
     const prevPopupComponent = this.#popupComponent;
 
     this.#film = film;
-    this.#popupComponent = new FilmPopupView(film, commentsModel);
+    this.#popupComponent = new FilmPopupView(film, this.#commentsModel, this.#handleModelEvent);
 
-    this.#popupComponent.setFavoriteClickHandler(this.#handleFavoriteClick);
-    this.#popupComponent.setWatchlistClickHandler(this.#handleWatchlistClick);
-    this.#popupComponent.setAlreadyWatchedClickHandler(this.#handleAlreadyWatchedClick);
-    this.#popupComponent.setCloseButtonClickHandler(this.#onClose);
+    this.#popupComponent.setCloseButtonClickHandler(this.#handlePopupClose);
+    this.#popupComponent.setWatchlistClickHandler(this.#handlePopupWatchlistClick);
+    this.#popupComponent.setAlreadyWatchedClickHandler(this.#handlePopupWatchedClick);
+    this.#popupComponent.setFavoriteClickHandler(this.#handlePopupFavoriteClick);
 
     document.addEventListener('keydown', this.#popupEscKeydownHandler);
-    body.classList.add(DOCUMENT_NO_SCROLL_CLASS);
+    body.classList.toggle(DOCUMENT_NO_SCROLL_CLASS);
 
     if (!prevPopupComponent) {
       render(this.#popupComponent, pageFooter, RenderPosition.AFTEREND);
@@ -54,33 +63,32 @@ export default class FilmPopupPresenter {
     }
   };
 
-  #handleFavoriteClick = () => {
-    this.#changeData({
-      ...this.#film,
-      userDetails: {
-        ...this.#film.userDetails,
-        favorite: !this.#film.userDetails.favorite}
-    });
+  #handleModelEvent = (updateType, data) => {
+    const scrollPosition = this.#popupComponent.element.scrollTop;
+    switch (updateType) {
+      case UpdateType.PATCH:
+        this.init(data);
+        this.#popupComponent.element.scrollTop = scrollPosition;
+        break;
+    }
   };
 
-  #handleWatchlistClick = () => {
-    this.#changeData({
-      ...this.#film,
-      userDetails: {
-        ...this.#film.userDetails,
-        watchlist: !this.#film.userDetails.watchlist
-      }
-    });
+  #handlePopupWatchlistClick = () => {
+    const scrollPosition = this.#popupComponent.element.scrollTop;
+    this.#handleWatchlistUpdate();
+    this.#popupComponent.element.scrollTop = scrollPosition;
   };
 
-  #handleAlreadyWatchedClick = () => {
-    this.#changeData({
-      ...this.#film,
-      userDetails: {
-        ...this.#film.userDetails,
-        alreadyWatched: !this.#film.userDetails.alreadyWatched
-      }
-    });
+  #handlePopupWatchedClick = () => {
+    const scrollPosition = this.#popupComponent.element.scrollTop;
+    this.#handleWatchedUpdate();
+    this.#popupComponent.element.scrollTop = scrollPosition;
+  };
+
+  #handlePopupFavoriteClick = () => {
+    const scrollPosition = this.#popupComponent.element.scrollTop;
+    this.#handleFavoriteUpdate();
+    this.#popupComponent.element.scrollTop = scrollPosition;
   };
 }
 

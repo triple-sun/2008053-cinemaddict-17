@@ -1,7 +1,8 @@
-import { DOCUMENT_NO_SCROLL_CLASS, FILM_POPUP_CONTROLS_ACTIVE_CLASS } from '../../const.js';
+import { FILM_POPUP_CONTROLS_ACTIVE_CLASS, UpdateType, UserAction } from '../../const.js';
 import { createTemplatesFromArray, humanizeCommentDateTime, humanizeReleaseDate, humanizeRuntime, setUserListButtonActiveClass } from '../../utils/film.js';
 import { generateComment } from '../../mock/comment.js';
 import AbstractStatefulView from '../../framework/view/abstract-stateful-view.js';
+import he from 'he';
 
 
 const POPUP_CLOSE_BUTTON_CLASS_SELECTOR = '.film-details__close-btn';
@@ -12,26 +13,25 @@ const POPUP_FAVORITE_BUTTON_CLASS_SELECTOR = '.film-details__control-button--fav
 const POPUP_NEW_COMMENT_FORM_SELECTOR = 'form';
 const POPUP_NEW_COMMENT_INPUT_CLASS_SELECTOR = '.film-details__comment-input';
 const POPUP_EMOJI_LIST_CLASS_SELECTOR = '.film-details__emoji-list';
+const POPUP_DELETE_COMMENT_CLASS_SELECTOR = '.film-details__comment-delete';
 
 const EMOJI_NODE_NAME = 'IMG';
-
-const body = document.body;
 
 const createGenreTemplate = (filmGenre) => `<span class="film-details__genre">${filmGenre}</span>`;
 
 const createCommentTemplate = (filmComment) => {
-  const {author, comment, date, emotion} = filmComment;
+  const {id, author, comment, date, emotion} = filmComment;
 
   return (`<li class="film-details__comment">
     <span class="film-details__comment-emoji">
     <img src="./images/emoji/${emotion}.png" width="55" height="55" alt="emoji-angry">
     </span>
     <div>
-    <p class="film-details__comment-text">${comment}</p>
+    <p class="film-details__comment-text">${he.encode(comment)}</p>
     <p class="film-details__comment-info">
     <span class="film-details__comment-author">${author}</span>
     <span class="film-details__comment-day">${humanizeCommentDateTime(date)}</span>
-    <button class="film-details__comment-delete">Delete</button>
+    <button class="film-details__comment-delete" data-comment-id="${id}">Delete</button>
   </p>
   </div>
   </li>`);
@@ -163,9 +163,10 @@ const createFilmPopupTopSectionTemplate = (data) => {
 export default class FilmPopupView extends AbstractStatefulView {
   _state = null;
 
-  constructor(film, commentsModel) {
+  constructor(film, commentsModel, handleModelEvent) {
     super();
-    this._state = FilmPopupView.parseDataToState(film, commentsModel);
+    this._state = FilmPopupView.parseDataToState(film, commentsModel, handleModelEvent);
+    this._state.commentsModel.addObserver(handleModelEvent);
     this.#setInnerHandlers();
   }
 
@@ -179,10 +180,10 @@ export default class FilmPopupView extends AbstractStatefulView {
     this.setWatchlistClickHandler(this._callback.watchlistClick);
     this.setAlreadyWatchedClickHandler(this._callback.alreadyWatchedClick);
     this.setFavoriteClickHandler(this._callback.favoriteClick);
-
   };
 
-  setCloseButtonClickHandler = () => {
+  setCloseButtonClickHandler = (callback) => {
+    this._callback.closeButtonClick = callback;
     this.element.querySelector(POPUP_CLOSE_BUTTON_CLASS_SELECTOR).addEventListener('click', this.#closeButtonClickHandler);
   };
 
@@ -203,75 +204,78 @@ export default class FilmPopupView extends AbstractStatefulView {
 
   #closeButtonClickHandler = (evt) => {
     evt.preventDefault();
-    this.hidePopup();
+    this._callback.closeButtonClick();
   };
 
   #watchlistClickHandler = (evt) => {
-    evt.stopPropagation();
+    const scrollPosition = this.element.scrollTop;
+    evt.preventDefault();
     this._callback.watchlistClick();
+    this.element.scrollTop = scrollPosition;
   };
 
   #alreadyWatchedClickHandler = (evt) => {
-    evt.stopPropagation();
+    evt.preventDefault();
     this._callback.alreadyWatchedClick();
   };
 
   #favoriteClickHandler = (evt) => {
-    evt.stopPropagation();
+    evt.preventDefault();
     this._callback.favoriteClick();
   };
 
   #emojiClickHandler = (evt) => {
     const commentText = this.element.querySelector(POPUP_NEW_COMMENT_INPUT_CLASS_SELECTOR).value;
+    const scrollPosition = this.element.scrollTop;
 
     if (evt.target.nodeName === EMOJI_NODE_NAME) {
       const emojiName = evt.target.src.slice(evt.target.src.lastIndexOf('/')+1, evt.target.src.lastIndexOf('.'));
 
       if (this._state.newCommentEmoji !== emojiName) {
-        const scrollPosition = this.element.scrollTop;
-
         this.updateElement({newCommentEmoji: emojiName, newCommentText: commentText});
-
         this.element.scrollTop = scrollPosition;
       }
     }
   };
-
 
   #newCommentSubmitFormHandler = (evt) => {
     const commentText = this.element.querySelector(POPUP_NEW_COMMENT_INPUT_CLASS_SELECTOR).value;
     const newCommentEmoji = this._state.newCommentEmoji;
 
     if (commentText && newCommentEmoji && (evt.code === 'Enter' && (evt.ctrlKey || evt.metaKey))) {
-      const scrollPosition = this.element.scrollTop;
+      const newComment = generateComment(commentText, new Date(), this._state.newCommentEmoji);
 
-      this._state.commentsModel.comments.push(generateComment(commentText, new Date(), this._state.newCommentEmoji));
-      this.updateElement({newCommentEmoji: null, newCommentText: null});
-      this.element.scrollTop = scrollPosition;
+      this.#handleCommentAction(UserAction.ADD_COMMENT, UpdateType.PATCH, newComment);
     }
   };
 
-  #popupEscKeydownHandler = (evt) => {
-    if (evt.key === 'Escape' || evt.key === 'Esc') {
-      evt.preventDefault();
-      this.hidePopup();
-    }
+  #deleteCommentHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleCommentAction(UserAction.DELETE_COMMENT, UpdateType.PATCH, evt.target.dataset.commentId);
   };
 
-  hidePopup = () => {
-    body.classList.remove(DOCUMENT_NO_SCROLL_CLASS);
-    body.removeEventListener('keydown', this.#popupEscKeydownHandler);
-    this.element.remove();
+  #handleCommentAction = (actionType, updateType, update) => {
+    switch (actionType) {
+      case UserAction.ADD_COMMENT:
+        this._state.commentsModel.addComment(updateType, update);
+        this.updateElement({newCommentEmoji: null, newCommentText: null});
+        break;
+      case UserAction.DELETE_COMMENT:
+        this._state.commentsModel.deleteComment(updateType, update);
+        break;
+    }
   };
 
   #setInnerHandlers = () => {
     this.element.querySelector(POPUP_EMOJI_LIST_CLASS_SELECTOR).addEventListener('click', this.#emojiClickHandler);
     this.element.querySelector(POPUP_NEW_COMMENT_FORM_SELECTOR).addEventListener('keypress', this.#newCommentSubmitFormHandler);
+    this.element.querySelectorAll(POPUP_DELETE_COMMENT_CLASS_SELECTOR).forEach((comment) => comment.addEventListener('click', this.#deleteCommentHandler));
   };
 
-  static parseDataToState = (film, commentsModel) => ({
+  static parseDataToState = (film, commentsModel, handleModelEvent) => ({
     ...film,
     commentsModel,
+    handleModelEvent,
     newCommentEmoji: null,
     newCommentText: null
   });

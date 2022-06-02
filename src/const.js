@@ -1,7 +1,7 @@
 const CARDS_PER_STEP = 5;
 const MAX_FILMS = 9;
-const MAX_COMMENT_ID = 100;
-const MAX_COMMENTS = 10;
+const MAX_COMMENTS_TOTAL = 100;
+const MAX_COMMENTS_PER_FILM = 10;
 const MAX_SENTENCES = 5;
 const MIN_YEAR = 1965;
 const MAX_YEAR = 2022;
@@ -29,16 +29,47 @@ const MOCK_SENTENCES = [
 ];
 
 const FilterType = {
-  ALL: 'All',
-  WATCHLIST: 'Watchlist',
-  HISTORY: 'History',
-  FAVOURITES: 'Favourites'
+  ALL: 'all',
+  WATCHLIST: 'watchlist',
+  HISTORY: 'history',
+  FAVORITES: 'favorites'
 };
 
 const SortType = {
   DEFAULT: 'default',
-  SORRT_BY_DATE: 'sort-by-date',
-  SORT_BY_RATING: 'sort-by-rating',
+  DATE: 'date',
+  DATE_DOWN: 'date-down',
+  RATING: 'rating',
+  RATING_DOWN: 'rating-down'
 };
 
-export { CARDS_PER_STEP, MAX_FILMS, MAX_COMMENT_ID, MAX_COMMENTS, MAX_SENTENCES, MIN_YEAR, MAX_YEAR, FILM_CARD_CONTROLS_ACTIVE_CLASS, FILM_POPUP_CONTROLS_ACTIVE_CLASS, DOCUMENT_NO_SCROLL_CLASS, EMOJIS, MOCK_TITLES, MOCK_SENTENCES, FilterType, SortType };
+const UserAction = {
+  ADD_COMMENT: 'ADD_COMMENT',
+  DELETE_COMMENT: 'DELETE_COMMENT'
+};
+
+const UpdateType = {
+  PATCH: 'PATCH',
+  MINOR: 'MINOR',
+  MAJOR: 'MAJOR',
+};
+
+export {
+  CARDS_PER_STEP,
+  MAX_FILMS,
+  MAX_COMMENTS_TOTAL,
+  MAX_COMMENTS_PER_FILM,
+  MAX_SENTENCES,
+  MIN_YEAR,
+  MAX_YEAR,
+  FILM_CARD_CONTROLS_ACTIVE_CLASS,
+  FILM_POPUP_CONTROLS_ACTIVE_CLASS,
+  DOCUMENT_NO_SCROLL_CLASS,
+  EMOJIS,
+  MOCK_TITLES,
+  MOCK_SENTENCES,
+  FilterType,
+  SortType,
+  UserAction,
+  UpdateType
+};

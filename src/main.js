@@ -1,17 +1,20 @@
 import FilmsSectionPresenter from './presenter/films-section-presenter.js';
-import FilmCardsModel from './model/film-cards-model.js';
-import { generateFilter } from './mock/filter.js';
+import FilmsModel from './model/films-model.js';
 import UserPresenter from './presenter/user-title-presenter.js';
+import FilmsFiltersPresenter from './presenter/filters-presenter.js';
+import FilterModel from './model/filter-model.js';
 
 const pageBody = document.body;
 const pageHeaderSection = pageBody.querySelector('.header');
 const pageMainSection = pageBody.querySelector('.main');
 
-const filmCardsModel = new FilmCardsModel();
-const filtersModel = generateFilter(filmCardsModel.films);
+const filmsModel = new FilmsModel();
+const filterModel = new FilterModel();
 
 const userPresenter = new UserPresenter(pageHeaderSection);
-const filmsSectionPresenter = new FilmsSectionPresenter(pageMainSection, filmCardsModel, filtersModel);
+const navigationPresenter = new FilmsFiltersPresenter(pageMainSection, filmsModel, filterModel);
+const filmsSectionPresenter = new FilmsSectionPresenter(pageMainSection, filmsModel, filterModel);
 
 userPresenter.init();
+navigationPresenter.init();
 filmsSectionPresenter.init();

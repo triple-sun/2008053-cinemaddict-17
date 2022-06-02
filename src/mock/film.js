@@ -1,6 +1,7 @@
-import { getRandomInteger, getRandomIndex, getRandomFloat, getRandomIntegerArray, getRandomBoolean, getRandomDate, generateSentences } from '../utils/common.js';
-import { MAX_COMMENT_ID, MAX_COMMENTS, MAX_SENTENCES, MIN_YEAR, MAX_YEAR, MOCK_TITLES } from '../const.js';
+import { getRandomInteger, getRandomIndex, getRandomFloat, getRandomBoolean, generateSentences, getRandomDate, getRandomArrayElements } from '../utils/common.js';
+import { MAX_COMMENTS_PER_FILM, MAX_SENTENCES, MOCK_TITLES } from '../const.js';
 import { nanoid } from 'nanoid';
+import { ALL_COMMENTS } from './comment.js';
 
 const MAX_RATING = 10;
 const MAX_AGE = 18;
@@ -10,13 +11,14 @@ const MAX_RUNTIME = 240;
 const getPosterURLFromTitle = (title) => `images/posters/${  title.replace(/ /gi, '-').toLowerCase()  }.jpg`;
 
 const generateFilm = () => {
-  const commentQuantity = getRandomInteger(0, MAX_COMMENTS);
+  const commentQuantity = getRandomInteger(0, MAX_COMMENTS_PER_FILM);
   const title = getRandomIndex(MOCK_TITLES);
   const poster = getPosterURLFromTitle(title);
+  const releaseDate = getRandomDate();
 
   return {
-    id: nanoid(MAX_COMMENT_ID),
-    comments: getRandomIntegerArray(commentQuantity, MAX_COMMENT_ID),
+    id: nanoid(),
+    comments: getRandomArrayElements(ALL_COMMENTS, commentQuantity).map((comment) => comment.id),
     filmInfo: {
       title: title,
       alternativeTitle: 'Laziness Who Sold Themselves',
@@ -31,7 +33,7 @@ const generateFilm = () => {
         'Morgan Freeman'
       ],
       release: {
-        date: `${getRandomDate(MIN_YEAR, MAX_YEAR)}`,
+        date: `${releaseDate}`,
         releaseCountry: 'Finland'
       },
       runtime: getRandomInteger(MIN_RUNTIME, MAX_RUNTIME),
@@ -44,8 +46,8 @@ const generateFilm = () => {
     userDetails: {
       watchlist: getRandomBoolean(),
       alreadyWatched: getRandomBoolean(),
-      watchingDate: `${getRandomDate(MIN_YEAR, MAX_YEAR)}`,
-      favourite: getRandomBoolean()
+      watchingDate: getRandomDate(),
+      favorite: getRandomBoolean()
     }
   };
 };
