@@ -1,52 +1,55 @@
-import { MAX_YEAR, MIN_YEAR, MOCK_SENTENCES } from '../const.js';
+//https://stackoverflow.com/a/59769834
+const toCamel = (str) => str
+  .replace(
+    /([-_][a-z])/ig, ($1) => $1
+      .toUpperCase()
+      .replace('-', '')
+      .replace('_', '')
+  );
 
-// Функция из интернета по генерации случайного числа из диапазона
-// Источник - https://github.com/you-dont-need/You-Dont-Need-Lodash-Underscore#_random
-const getRandomInteger = (a = 0, b = 1) => {
-  const lower = Math.ceil(Math.min(a, b));
-  const upper = Math.floor(Math.max(a, b));
+const toSnake = (str) => str
+  .replace(
+    /([A-Z])/g, ($1)=> `_${$1
+      .toLowerCase()}`
+  );
 
-  return Math.floor(lower + Math.random() * (upper - lower + 1));
-};
-//Функция взята со StackOverflow: https://stackoverflow.com/questions/17726753/get-a-random-number-between-0-0200-and-0-120-float-numbers и доработана
-const getRandomFloat = (a, b, decimal = 1) => {
-  const min = Math.min(Math.abs(a), Math.abs(b));
-  const max = Math.max(Math.abs(a), Math.abs(b));
+const isObject = (obj) => obj === Object(obj) && !Array.isArray(obj) && typeof obj !== 'function';
 
-  return Number(Math.random() * (max - min) + min).toFixed(decimal);
-};
+const snakeCaseKeysToCamelCase = (obj) => {
+  if (isObject(obj)) {
+    const n = {};
 
-//https://stackoverflow.com/a/46382735
-const getRandomIntegerArray = (length, max) => Array(length).fill().map(() => Math.round(Math.random() * max));
+    Object.keys(obj)
+      .forEach((k) => {
+        n[toCamel(k)] = snakeCaseKeysToCamelCase(obj[k]);
+      });
 
-const getRandomBoolean = () => Math.random() < 0.5;
-
-const getRandomIndex = (arr) => arr[getRandomInteger(0, arr.length - 1)];
-
-const getRandomArrayElements = (arr, amount) => {
-  const elements = [];
-  for (let i = 0; i < amount; i++) {
-    elements.push(getRandomIndex(arr));
+    return n;
+  } else if (Array.isArray(obj)) {
+    return obj.map((i) => snakeCaseKeysToCamelCase(i));
   }
-  return elements;
+
+  return obj;
 };
 
-//https://gist.github.com/miguelmota/5b67e03845d840c949c4
-const getRandomDate = (startYear = MIN_YEAR, endYear = MAX_YEAR) => {
-  const startDate = new Date(startYear, 0, 1);
-  const endDate = new Date(endYear, 0, 1);
-  return new Date(startDate.getTime() + Math.random() * (endDate.getTime() - startDate.getTime()));
-};
+const camelCaseKeysToSnakeCase = (obj) => {
+  if (isObject(obj)) {
+    const n = {};
 
-const generateSentences = (amount) => getRandomArrayElements(MOCK_SENTENCES, amount).join(' ');
+    Object.keys(obj)
+      .forEach((k) => {
+        n[toSnake(k)] = camelCaseKeysToSnakeCase(obj[k]);
+      });
+
+    return n;
+  } else if (Array.isArray(obj)) {
+    return obj.map((i) => camelCaseKeysToSnakeCase(i));
+  }
+
+  return obj;
+};
 
 export {
-  getRandomInteger,
-  getRandomFloat,
-  getRandomIntegerArray,
-  getRandomBoolean,
-  getRandomIndex,
-  getRandomArrayElements,
-  getRandomDate,
-  generateSentences
+  snakeCaseKeysToCamelCase,
+  camelCaseKeysToSnakeCase
 };

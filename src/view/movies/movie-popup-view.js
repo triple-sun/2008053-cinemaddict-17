@@ -1,6 +1,5 @@
-import { FILM_POPUP_CONTROLS_ACTIVE_CLASS, UpdateType, UserAction } from '../../const.js';
-import { createTemplatesFromArray, humanizeCommentDateTime, humanizeReleaseDate, humanizeRuntime, setUserListButtonActiveClass } from '../../utils/film.js';
-import { generateComment } from '../../mock/comment.js';
+import { ErrorType, MOVIE_POPUP_CONTROLS_ACTIVE_CLASS, UpdateType, UserAction } from '../../const.js';
+import { createTemplatesFromArray, generateComment, humanizeCommentDateTime, humanizeReleaseDate, humanizeRuntime, setUserListButtonActiveClass } from '../../utils/movie.js';
 import AbstractStatefulView from '../../framework/view/abstract-stateful-view.js';
 import he from 'he';
 
@@ -43,13 +42,20 @@ const showNewCommentText = (newCommentText) => newCommentText
   ? `<textarea class='film-details__comment-input' name='comment'>${newCommentText}</textarea>`
   : '<textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment"></textarea>';
 
-const createFilmPopupTopSectionTemplate = (data) => {
-  const {comments, filmInfo, userDetails, commentsModel, newCommentEmoji, newCommentText} = data;
+const createMoviePopupTopSectionTemplate = (data) => {
+  const {filmInfo, userDetails, commentsModel, newCommentEmoji, newCommentText} = data;
   const {title, poster, ageRating, totalRating, director, writers, actors, release, runtime, genre, description} = filmInfo;
   const {watchlist, alreadyWatched, favorite} = userDetails;
 
   const filmGenres = createTemplatesFromArray([...genre], createGenreTemplate);
-  const filmComments = createTemplatesFromArray([...commentsModel.comments], createCommentTemplate);
+
+  const commentsCount = commentsModel.comments === ErrorType.COMMENTS_ERROR
+    ? '<h2 class="films-list__title">Failed to load comments</h2>'
+    : `<h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${commentsModel.comments.length}</span></h3>`;
+
+  const filmComments = commentsModel.comments === ErrorType.COMMENTS_ERROR
+    ? ''
+    : createTemplatesFromArray([...commentsModel.comments], createCommentTemplate);
 
   return (`
    <section class="film-details">
@@ -112,14 +118,14 @@ const createFilmPopupTopSectionTemplate = (data) => {
   </div>
 
 <section class="film-details__controls">
-  <button type="button" class="film-details__control-button film-details__control-button--watchlist ${setUserListButtonActiveClass(watchlist, FILM_POPUP_CONTROLS_ACTIVE_CLASS)}" id="watchlist" name="watchlist">Add to watchlist</button>
-  <button type="button" class="film-details__control-button film-details__control-button--watched ${setUserListButtonActiveClass(alreadyWatched, FILM_POPUP_CONTROLS_ACTIVE_CLASS)} " id="watched" name="watched">Already watched</button>
-  <button type="button" class="film-details__control-button film-details__control-button--favorite ${setUserListButtonActiveClass(favorite, FILM_POPUP_CONTROLS_ACTIVE_CLASS)}" id="favorite" name="favorite">Add to favorites</button>
+  <button type="button" class="film-details__control-button film-details__control-button--watchlist ${setUserListButtonActiveClass(watchlist, MOVIE_POPUP_CONTROLS_ACTIVE_CLASS)}" id="watchlist" name="watchlist">Add to watchlist</button>
+  <button type="button" class="film-details__control-button film-details__control-button--watched ${setUserListButtonActiveClass(alreadyWatched, MOVIE_POPUP_CONTROLS_ACTIVE_CLASS)} " id="watched" name="watched">Already watched</button>
+  <button type="button" class="film-details__control-button film-details__control-button--favorite ${setUserListButtonActiveClass(favorite, MOVIE_POPUP_CONTROLS_ACTIVE_CLASS)}" id="favorite" name="favorite">Add to favorites</button>
 </section>
 </div>
 <div class="film-details__bottom-container">
 <section class="film-details__comments-wrap">
-  <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${comments.length}</span></h3>
+  ${commentsCount}
 
   <ul class="film-details__comments-list">
   ${filmComments}
@@ -160,18 +166,18 @@ const createFilmPopupTopSectionTemplate = (data) => {
 `);
 };
 
-export default class FilmPopupView extends AbstractStatefulView {
+export default class MoviePopupView extends AbstractStatefulView {
   _state = null;
 
-  constructor(film, commentsModel, handleModelEvent) {
+  constructor(movie, commentsModel, handleModelEvent, comments) {
     super();
-    this._state = FilmPopupView.parseDataToState(film, commentsModel, handleModelEvent);
+    this._state = MoviePopupView.parseDataToState(movie, commentsModel, handleModelEvent, comments);
     this._state.commentsModel.addObserver(handleModelEvent);
     this.#setInnerHandlers();
   }
 
   get template() {
-    return createFilmPopupTopSectionTemplate(this._state);
+    return createMoviePopupTopSectionTemplate(this._state);
   }
 
   _restoreHandlers = () => {
@@ -272,8 +278,9 @@ export default class FilmPopupView extends AbstractStatefulView {
     this.element.querySelectorAll(POPUP_DELETE_COMMENT_CLASS_SELECTOR).forEach((comment) => comment.addEventListener('click', this.#deleteCommentHandler));
   };
 
-  static parseDataToState = (film, commentsModel, handleModelEvent) => ({
-    ...film,
+  static parseDataToState = (movie, commentsModel, handleModelEvent, comments) => ({
+    ...movie,
+    comments,
     commentsModel,
     handleModelEvent,
     newCommentEmoji: null,

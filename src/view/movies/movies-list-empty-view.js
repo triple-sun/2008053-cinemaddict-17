@@ -1,20 +1,20 @@
 import { FilterType } from '../../const.js';
 import AbstractView from '../../framework/view/abstract-view.js';
 
-const FilmsListEmptyType = {
+const MoviesListEmptyType = {
   [FilterType.ALL]: 'There are no movies in our database',
   [FilterType.WATCHLIST]: 'There are no movies to watch now',
   [FilterType.HISTORY]: 'There are no watched movies now',
   [FilterType.FAVORITES]: 'There are no favorite movies now',
 };
 
-const createFilmsListEmptyTemplate = (filterType) => {
-  const filmsListEmptyTextValue = FilmsListEmptyType[filterType];
+const createMoviesListEmptyTemplate = (filterType) => {
+  const filmsListEmptyTextValue = MoviesListEmptyType[filterType];
 
   return (`<h2 class="films-list__title">${filmsListEmptyTextValue}</h2>`);
 };
 
-export default class FilmsListEmptyView extends AbstractView {
+export default class MoviesListEmptyView extends AbstractView {
   #filterType = null;
 
   constructor(filterType) {
@@ -23,6 +23,6 @@ export default class FilmsListEmptyView extends AbstractView {
   }
 
   get template() {
-    return createFilmsListEmptyTemplate(this.#filterType);
+    return createMoviesListEmptyTemplate(this.#filterType);
   }
 }

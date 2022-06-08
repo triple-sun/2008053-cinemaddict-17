@@ -1,13 +1,11 @@
-import FilmPopupView from '../view/popup/popup-view.js';
+import MoviePopupView from '../view/movies/movie-popup-view.js';
 import { remove, render, RenderPosition, replace } from '../framework/render.js';
-import { UpdateType } from '../const.js';
-
-const DOCUMENT_NO_SCROLL_CLASS = 'hide-overflow';
+import { DOCUMENT_NO_SCROLL_CLASS, UpdateType } from '../const.js';
 
 const body = document.body;
 const pageFooter = body.querySelector('footer');
 
-export default class FilmPopupPresenter {
+export default class MoviePopupPresenter {
   #popupComponent = null;
 
   #handlePopupClose = null;
@@ -16,9 +14,9 @@ export default class FilmPopupPresenter {
   #handleFavoriteUpdate = null;
 
   #commentsModel = null;
-  #film = null;
+  #movie = null;
 
-  constructor (filmsModel, commentsModel, handlePopupClose, handleWatchlistUpdate, handleWatchedUpdate, handleFavoriteUpdate) {
+  constructor (commentsModel, handlePopupClose, handleWatchlistUpdate, handleWatchedUpdate, handleFavoriteUpdate) {
     this.#commentsModel = commentsModel;
     this.#handlePopupClose = handlePopupClose;
     this.#handleWatchlistUpdate = handleWatchlistUpdate;
@@ -26,12 +24,11 @@ export default class FilmPopupPresenter {
     this.#handleFavoriteUpdate = handleFavoriteUpdate;
   }
 
-  init = (film) => {
+  init = (movie) => {
     const prevPopupComponent = this.#popupComponent;
+    this.#movie = movie;
 
-    this.#film = film;
-    this.#popupComponent = new FilmPopupView(film, this.#commentsModel, this.#handleModelEvent);
-
+    this.#popupComponent = new MoviePopupView(movie, this.#commentsModel, this.#handleModelEvent);
     this.#popupComponent.setCloseButtonClickHandler(this.#handlePopupClose);
     this.#popupComponent.setWatchlistClickHandler(this.#handlePopupWatchlistClick);
     this.#popupComponent.setAlreadyWatchedClickHandler(this.#handlePopupWatchedClick);
@@ -69,6 +66,9 @@ export default class FilmPopupPresenter {
       case UpdateType.PATCH:
         this.init(data);
         this.#popupComponent.element.scrollTop = scrollPosition;
+        break;
+      case UpdateType.INIT:
+        this.init(data);
         break;
     }
   };

@@ -6,22 +6,22 @@ import { filter } from '../utils/filter.js';
 
 export default class FilmsFiltersPresenter {
   #pageMainSection = null;
-  #filmsModel = null;
+  #moviesModel = null;
   #filterModel = null;
 
   #filterComponent = null;
 
-  constructor(pageMainSection, filmCardsModel, filterModel) {
+  constructor(pageMainSection, moviesModel, filterModel) {
     this.#pageMainSection = pageMainSection;
-    this.#filmsModel = filmCardsModel;
+    this.#moviesModel = moviesModel;
     this.#filterModel = filterModel;
 
-    this.#filmsModel.addObserver(this.#handleModelEvent);
+    this.#moviesModel.addObserver(this.#handleModelEvent);
     this.#filterModel.addObserver(this.#handleModelEvent);
   }
 
   get filters() {
-    const films = this.#filmsModel.films;
+    const films = this.#moviesModel.movies;
 
     return [
       {
