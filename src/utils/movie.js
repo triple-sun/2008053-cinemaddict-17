@@ -31,12 +31,6 @@ const getWeightForNullArrayElement = (elemA, elemB) => {
 
 const sortFilmsByDefault = (filmA, filmB) => filmA.id.toUpperCase() > filmB.id.toUpperCase() ? 1 : -1;
 
-const sortFilmsByDateUp = (filmA, filmB) => {
-  const weight = getWeightForNullArrayElement(filmA.filmInfo.release.date, filmB.filmInfo.release.date);
-
-  return weight ?? dayjs(filmA.filmInfo.release.date).diff(filmB.filmInfo.release.date);
-};
-
 const sortFilmsByDateDown = (filmA, filmB) => {
   const weight = getWeightForNullArrayElement(filmA.filmInfo.release.date, filmB.filmInfo.release.date);
 
@@ -66,7 +60,6 @@ export {
   createTemplatesFromArray,
   humanizeCommentDateTime,
   sortFilmsByDefault,
-  sortFilmsByDateUp,
   sortFilmsByDateDown,
   sortFilmsByRatingDown,
   generateComment

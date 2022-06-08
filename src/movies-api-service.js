@@ -3,6 +3,7 @@ import { camelCaseKeysToSnakeCase } from './utils/common.js';
 
 const MOVIES_URL = 'movies';
 const COMMENTS_URL = 'comments';
+const HEADERS = {'Content-Type': 'application/json'};
 
 const Method = {
   GET: 'GET',
@@ -23,7 +24,7 @@ export default class MoviesApiService extends ApiService {
       url: `${MOVIES_URL}/${movie.id}`,
       method: Method.PUT,
       body: JSON.stringify(this.#adaptToServer(movie)),
-      headers: new Headers({'Content-Type': 'application/json'}),
+      headers: new Headers(HEADERS),
     });
 
     const parsedResponse = await ApiService.parseResponse(response);

@@ -13,7 +13,6 @@ export default class CommentsModel extends Observable {
 
   get comments() {
     return this.#comments;
-    //return this.#movie.comments.map((id) => ALL_COMMENTS.find((element) => element.id === id));
   }
 
   init = async (movie) => {

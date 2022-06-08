@@ -26,9 +26,10 @@ export default class MoviePopupPresenter {
 
   init = (movie) => {
     const prevPopupComponent = this.#popupComponent;
-    this.#movie = movie;
 
+    this.#movie = movie;
     this.#popupComponent = new MoviePopupView(movie, this.#commentsModel, this.#handleModelEvent);
+
     this.#popupComponent.setCloseButtonClickHandler(this.#handlePopupClose);
     this.#popupComponent.setWatchlistClickHandler(this.#handlePopupWatchlistClick);
     this.#popupComponent.setAlreadyWatchedClickHandler(this.#handlePopupWatchedClick);
