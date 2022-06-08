@@ -10,7 +10,6 @@ const MoviesListEmptyType = {
 
 const createMoviesListEmptyTemplate = (filterType) => {
   const filmsListEmptyTextValue = MoviesListEmptyType[filterType];
-
   return (`<h2 class="films-list__title">${filmsListEmptyTextValue}</h2>`);
 };
 

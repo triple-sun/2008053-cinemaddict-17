@@ -10,6 +10,9 @@ const AUTHORIZATION = `Basic ${nanoid(16)}`;
 const END_POINT = 'https://17.ecmascript.pages.academy/cinemaddict';
 
 const pageBody = document.body;
+const pageHeaderSection = pageBody.querySelector('.header');
+const pageMainSection = pageBody.querySelector('.main');
+
 
 const FilterType = {
   ALL: 'all',
@@ -50,6 +53,8 @@ export {
   END_POINT,
   AUTHORIZATION,
   pageBody,
+  pageHeaderSection,
+  pageMainSection,
   FilterType,
   SortType,
   UserAction,

@@ -1,10 +1,11 @@
+import { FilterType } from '../const.js';
 import AbstractView from '../framework/view/abstract-view.js';
 
 const FILTER_ITEM_ACTIVE_CLASS = 'main-navigation__item--active';
 
 const createFilterItemTemplate = (filter, currentFilterType) => {
   const {type, name, count} = filter;
-  return `<a href="#${type.toLowerCase()}" class="main-navigation__item ${type === currentFilterType ? FILTER_ITEM_ACTIVE_CLASS : ''}" data-filter-type="${type}">${name} <span class="main-navigation__item-count" data-filter-type="${type}">${count}</span></a>`;
+  return `<a href="#${type.toLowerCase()}" class="main-navigation__item ${type === currentFilterType ? FILTER_ITEM_ACTIVE_CLASS : ''}" data-filter-type="${type}">${name} ${type === FilterType.ALL ? '' : `<span class="main-navigation__item-count" data-filter-type="${type}">${count}</span>`}</a>`;
 };
 
 const createFiltersTemplate = (filterItems, currentFilterType) => {

@@ -8,7 +8,6 @@ export default class MovieCardPresenter {
   #moviesListContainerComponent = null;
   #handleMovieUserDataUpdate = null;
   #moviesModel = null;
-  #handleModelEvent = null;
   #commentsModel = null;
 
   #movie = null;
@@ -17,13 +16,12 @@ export default class MovieCardPresenter {
 
   #isPopupOpen = false;
 
-  constructor(moviesListContainerComponent, handleMovieUserDataUpdate, hidePopup, moviesModel, commentsModel, handleModelEvent) {
+  constructor(moviesListContainerComponent, handleMovieUserDataUpdate, hidePopup, moviesModel, commentsModel) {
     this.#moviesListContainerComponent = moviesListContainerComponent;
     this.#handleMovieUserDataUpdate = handleMovieUserDataUpdate;
     this.#hidePopup = hidePopup;
     this.#moviesModel = moviesModel;
     this.#commentsModel = commentsModel;
-    this.#handleModelEvent = handleModelEvent;
   }
 
   init = (movie) => {
@@ -80,7 +78,7 @@ export default class MovieCardPresenter {
 
   #handleFavoriteClick = () => {
     this.#handleMovieUserDataUpdate(
-      UpdateType.PATCH,
+      UpdateType.MINOR,
       {
         ...this.#movie,
         userDetails: {
@@ -92,7 +90,7 @@ export default class MovieCardPresenter {
 
   #handleWatchlistClick = () => {
     this.#handleMovieUserDataUpdate(
-      UpdateType.PATCH,
+      UpdateType.MINOR,
       {
         ...this.#movie,
         userDetails: {
@@ -105,7 +103,7 @@ export default class MovieCardPresenter {
 
   #handleAlreadyWatchedClick = () => {
     this.#handleMovieUserDataUpdate(
-      UpdateType.PATCH,
+      UpdateType.MINOR,
       {
         ...this.#movie,
         userDetails: {

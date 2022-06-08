@@ -3,7 +3,6 @@ import { remove, render, replace } from '../framework/render.js';
 import { FilterType, UpdateType } from '../const.js';
 import { filter } from '../utils/filter.js';
 
-
 export default class FilmsFiltersPresenter {
   #pageMainSection = null;
   #moviesModel = null;

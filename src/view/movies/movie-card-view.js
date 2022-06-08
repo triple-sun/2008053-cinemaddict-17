@@ -36,9 +36,15 @@ const createMovieCardTemplate = (movie) => {
 };
 
 export default class MovieCardView extends AbstractView {
+  #movie = null;
+
   constructor(movie) {
     super();
-    this.movie = movie;
+    this.#movie = movie;
+  }
+
+  get movie() {
+    return this.#movie;
   }
 
   get template() {

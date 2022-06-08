@@ -6,10 +6,15 @@ import MoviesListContainerView from '../view/movies/movies-list-container-view.j
 import MoviesListEmptyView from '../view/movies/movies-list-empty-view.js';
 import MovieCardPresenter from './movie-card-presenter.js';
 import MoviesListLoadingView from '../view/movies/movies-list-loading-view.js';
-import { CARDS_PER_STEP, FilterType, SortType, UpdateType } from '../const.js';
+import { CARDS_PER_STEP, FilterType, pageHeaderSection, SortType, UpdateType } from '../const.js';
 import { remove, render, RenderPosition } from '../framework/render.js';
 import { filter } from '../utils/filter.js';
 import { sortFilmsByDateDown, sortFilmsByDefault, sortFilmsByRatingDown } from '../utils/movie.js';
+import MoviesListTotalView from '../view/movies/movies-list-total-view.js';
+import UserTitleView from '../view/user-title-view.js';
+
+const pageFooter = document.querySelector('footer');
+const movieStatisticsSection = pageFooter.querySelector('.footer__statistics');
 
 export default class MoviesSectionPresenter {
   #pageMainSection = null;
@@ -20,9 +25,11 @@ export default class MoviesSectionPresenter {
   #sortComponent = null;
   #moviesListEmptyComponent = null;
   #showMoreButtonComponent = null;
+  #moviesListStatisticsComponent = null;
+  #userTitleComponent = null;
 
   #currentSortType = SortType.DEFAULT;
-  #currentFilterType = FilterType.ALL;
+  #filterType = FilterType.ALL;
   #isLoading = true;
 
   #renderedMovieCardCount = CARDS_PER_STEP;
@@ -60,14 +67,24 @@ export default class MoviesSectionPresenter {
     return filteredMovies;
   }
 
-  init = () => {
-    this.#renderMovieCardsBoard();
+  init = () => this.#renderMovieCardsBoard();
+
+  #renderUserTitle = () => {
+    const movies = this.#moviesModel.movies;
+    const watchedMoviesCount = filter[FilterType.HISTORY](movies).length;
+
+    this.#userTitleComponent = new UserTitleView(watchedMoviesCount);
+
+    if (this.#userTitleComponent) {
+      remove(this.#userTitleComponent);
+    }
+
+    render(this.#userTitleComponent, pageHeaderSection);
   };
 
   #renderSort = () => {
     this.#sortComponent = new SortView(this.#currentSortType);
     this.#sortComponent.setSortTypeChangeHandler(this.#handleSortTypeChange);
-
     render(this.#sortComponent, this.#pageMainSection, RenderPosition.AFTERBEGIN);
   };
 
@@ -77,8 +94,7 @@ export default class MoviesSectionPresenter {
       this.#handleMovieDataUpdate,
       this.#hidePopup,
       this.#moviesModel,
-      this.#commentsModel,
-      this.#handleModelEvent
+      this.#commentsModel
     );
 
     movieCardPresenter.init(movie);
@@ -92,7 +108,7 @@ export default class MoviesSectionPresenter {
   };
 
   #renderMoviesListEmpty = () => {
-    this.#moviesListEmptyComponent = new MoviesListEmptyView(this.#currentFilterType);
+    this.#moviesListEmptyComponent = new MoviesListEmptyView(this.#filterModel.filter);
     render(this.#moviesListEmptyComponent, this.#moviesListContainerComponent.element);
   };
 
@@ -110,7 +126,9 @@ export default class MoviesSectionPresenter {
     this.#movieCardPresenter.clear();
 
     remove(this.#sortComponent);
+    remove(this.#userTitleComponent);
     remove(this.#showMoreButtonComponent);
+    remove(this.#moviesListStatisticsComponent);
 
     if (this.#moviesListEmptyComponent) {
       remove(this.#moviesListEmptyComponent);
@@ -130,24 +148,28 @@ export default class MoviesSectionPresenter {
   };
 
   #renderMovieCardsBoard = () => {
+    const totalMovieCount = this.#moviesModel.movies.length;
+    const movieCardsCount = this.movies.length;
+    const movies = this.movies.slice(0, Math.min(movieCardsCount, CARDS_PER_STEP));
+
     render(this.#moviesSectionComponent, this.#pageMainSection);
     render(this.#moviesListSectionComponent, this.#moviesSectionComponent.element);
+
+    this.#moviesListContainerComponent.element.innerHTML = '';
 
     if (this.#isLoading) {
       this.#renderLoading();
       return;
     }
 
-    const movieCardsCount = this.movies.length;
-    const movies = this.movies.slice(0, Math.min(movieCardsCount, CARDS_PER_STEP));
-
-    this.#moviesListContainerComponent.element.innerHTML = '';
-
     render(this.#moviesListContainerComponent, this.#moviesListSectionComponent.element);
 
+    this.#renderUserTitle();
 
-    this.#renderSort();
-    this.#renderMovieCards(movies);
+    if (movieCardsCount) {
+      this.#renderSort();
+      this.#renderMovieCards(movies);
+    }
 
     if (movieCardsCount > CARDS_PER_STEP) {
       this.#renderShowMoreButton();
@@ -156,6 +178,13 @@ export default class MoviesSectionPresenter {
     if (!movieCardsCount) {
       this.#renderMoviesListEmpty();
     }
+
+    this.#renderMoviesTotal(totalMovieCount);
+  };
+
+  #renderMoviesTotal = (count) => {
+    this.#moviesListStatisticsComponent = new MoviesListTotalView(count);
+    render(this.#moviesListStatisticsComponent, movieStatisticsSection);
   };
 
 
