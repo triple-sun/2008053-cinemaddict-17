@@ -1,7 +1,8 @@
 import { ErrorType, MOVIE_POPUP_CONTROLS_ACTIVE_CLASS, UpdateType, UserAction } from '../../const.js';
-import { createTemplatesFromArray, generateComment, humanizeCommentDateTime, humanizeReleaseDate, humanizeRuntime, setUserListButtonActiveClass } from '../../utils/movie.js';
+import { createTemplatesFromArray, generateComment, humanizeReleaseDate, humanizeRuntime, setUserListButtonActiveClass } from '../../utils/movie.js';
 import AbstractStatefulView from '../../framework/view/abstract-stateful-view.js';
 import he from 'he';
+import { humanizeCommentDate } from '../../utils/common.js';
 
 
 const POPUP_CLOSE_BUTTON_CLASS_SELECTOR = '.film-details__close-btn';
@@ -29,7 +30,7 @@ const createCommentTemplate = (filmComment) => {
     <p class="film-details__comment-text">${he.encode(comment)}</p>
     <p class="film-details__comment-info">
     <span class="film-details__comment-author">${author}</span>
-    <span class="film-details__comment-day">${humanizeCommentDateTime(date)}</span>
+    <span class="film-details__comment-day">${humanizeCommentDate(date)}</span>
     <button class="film-details__comment-delete" data-comment-id="${id}">Delete</button>
   </p>
   </div>
