@@ -6,18 +6,16 @@ import MoviesListContainerView from '../view/movies/movies-list-container-view.j
 import MoviesListEmptyView from '../view/movies/movies-list-empty-view.js';
 import MovieCardPresenter from './movie-card-presenter.js';
 import MoviesListLoadingView from '../view/movies/movies-list-loading-view.js';
-import { CARDS_PER_STEP, FilterType, pageHeaderSection, SortType, UpdateType } from '../const.js';
+import { CARDS_PER_STEP, FilterType, pageFooterSection, pageHeaderSection, pageMainSection, SortType, UpdateType } from '../const.js';
 import { remove, render, RenderPosition } from '../framework/render.js';
 import { filter } from '../utils/filter.js';
 import { sortFilmsByDateDown, sortFilmsByDefault, sortFilmsByRatingDown } from '../utils/movie.js';
-import MoviesListTotalView from '../view/movies/movies-list-total-view.js';
+import MovieStatsView from '../view/movies/movie-stats-view.js';
 import UserTitleView from '../view/user-title-view.js';
 
-const pageFooter = document.querySelector('footer');
-const movieStatisticsSection = pageFooter.querySelector('.footer__statistics');
+const movieStatisticsSection = pageFooterSection.querySelector('.footer__statistics');
 
 export default class MoviesSectionPresenter {
-  #pageMainSection = null;
   #filterModel = null;
   #moviesModel = null;
   #commentsModel = null;
@@ -25,12 +23,13 @@ export default class MoviesSectionPresenter {
   #sortComponent = null;
   #moviesListEmptyComponent = null;
   #showMoreButtonComponent = null;
-  #moviesListStatisticsComponent = null;
+  #movieStatsComponent = null;
   #userTitleComponent = null;
 
-  #currentSortType = SortType.DEFAULT;
   #isLoading = true;
+  #currentSortType = SortType.DEFAULT;
 
+  #pageMainSection = pageMainSection;
   #renderedMovieCardCount = CARDS_PER_STEP;
   #movieCardPresenters = new Map();
 
@@ -39,8 +38,7 @@ export default class MoviesSectionPresenter {
   #moviesListSectionComponent = new MoviesListSectionView();
   #moviesListContainerComponent = new MoviesListContainerView();
 
-  constructor(pageMainSection, moviesModel, filterModel, commentsModel) {
-    this.#pageMainSection = pageMainSection;
+  constructor(moviesModel, filterModel, commentsModel) {
     this.#moviesModel = moviesModel;
     this.#filterModel = filterModel;
     this.#commentsModel = commentsModel;
@@ -129,7 +127,7 @@ export default class MoviesSectionPresenter {
     remove(this.#sortComponent);
     remove(this.#userTitleComponent);
     remove(this.#showMoreButtonComponent);
-    remove(this.#moviesListStatisticsComponent);
+    remove(this.#movieStatsComponent);
 
     if (this.#moviesListEmptyComponent) {
       remove(this.#moviesListEmptyComponent);
@@ -178,12 +176,12 @@ export default class MoviesSectionPresenter {
       this.#renderMoviesListEmpty();
     }
 
-    this.#renderMoviesTotal(totalMovieCount);
+    this.#renderMovieStats(totalMovieCount);
   };
 
-  #renderMoviesTotal = (count) => {
-    this.#moviesListStatisticsComponent = new MoviesListTotalView(count);
-    render(this.#moviesListStatisticsComponent, movieStatisticsSection);
+  #renderMovieStats = (count) => {
+    this.#movieStatsComponent = new MovieStatsView(count);
+    render(this.#movieStatsComponent, movieStatisticsSection);
   };
 
 

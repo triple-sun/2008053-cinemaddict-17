@@ -1,11 +1,11 @@
 
 import AbstractView from '../../framework/view/abstract-view.js';
 
-const createMoviesListSectionTemplate = (count) => count
+const createMovieStatsTemplate = (count) => count
   ? `<p>${count} movies inside</p>`
   : '';
 
-export default class MoviesListTotalView extends AbstractView {
+export default class MovieStatsView extends AbstractView {
   #count = null;
 
   constructor(count) {
@@ -14,6 +14,6 @@ export default class MoviesListTotalView extends AbstractView {
   }
 
   get template() {
-    return createMoviesListSectionTemplate(this.#count);
+    return createMovieStatsTemplate(this.#count);
   }
 }

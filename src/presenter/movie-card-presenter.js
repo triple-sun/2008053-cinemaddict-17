@@ -65,7 +65,7 @@ export default class MovieCardPresenter {
       document.body.classList.remove(DOCUMENT_NO_SCROLL_CLASS);
       this.#popupPresenter.destroy();
       this.#moviesModel.removeObserver(this.#handlePopupModelEvent);
-      this.#commentsModel.removeObserver(this.#handleModelEvent);
+      this.#commentsModel.removeObserver(this.#handlePopupModelEvent);
       this.#moviesModel.addObserver(this.#handleModelEvent);
       this.#isPopupOpen = false;
     }

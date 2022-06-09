@@ -1,6 +1,8 @@
 import MoviePopupView from '../view/movies/movie-popup-view.js';
 import { remove, render, RenderPosition, replace } from '../framework/render.js';
-import { DOCUMENT_NO_SCROLL_CLASS, pageBody, pageFooterSection, UpdateType } from '../const.js';
+import { DOCUMENT_NO_SCROLL_CLASS, pageFooterSection, UpdateType } from '../const.js';
+
+const pageBody = document.querySelector('body');
 
 export default class MoviePopupPresenter {
   #movie = null;
@@ -30,7 +32,7 @@ export default class MoviePopupPresenter {
     this.#popupComponent.setFavoriteClickHandler(this.#handlePopupFavoriteClick);
 
     document.addEventListener('keydown', this.#popupEscKeydownHandler);
-    pageBody.classList.toggle(DOCUMENT_NO_SCROLL_CLASS);
+    pageBody.classList.add(DOCUMENT_NO_SCROLL_CLASS);
 
     if (!prevPopupComponent) {
       render(this.#popupComponent, pageFooterSection, RenderPosition.AFTEREND);
@@ -41,11 +43,11 @@ export default class MoviePopupPresenter {
       replace(this.#popupComponent, prevPopupComponent);
     }
 
+    remove(prevPopupComponent);
+
     if (this.#scrollPosition) {
       this.#popupComponent.element.scrollTop = this.#scrollPosition;
     }
-
-    remove(prevPopupComponent);
   };
 
   destroy = () => remove(this.#popupComponent);
@@ -53,8 +55,7 @@ export default class MoviePopupPresenter {
   #popupEscKeydownHandler = (evt) => {
     if (evt.key === 'Escape' || evt.key === 'Esc') {
       evt.preventDefault();
-      remove(this.#popupComponent);
-      pageBody.classList.remove(DOCUMENT_NO_SCROLL_CLASS);
+      this.#handlePopupClose();
       document.removeEventListener('keydown', this.#popupEscKeydownHandler);
     }
   };

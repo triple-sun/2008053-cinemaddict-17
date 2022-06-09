@@ -4,15 +4,16 @@ import MoviesFiltersPresenter from './presenter/filters-presenter.js';
 import FilterModel from './model/filter-model.js';
 import MoviesApiService from './movies-api-service.js';
 import CommentsModel from './model/comments-model.js';
-import { AUTHORIZATION, END_POINT, pageMainSection } from './const.js';
+import { AUTHORIZATION, END_POINT } from './const.js';
 
 const moviesApiService = new MoviesApiService(END_POINT, AUTHORIZATION);
+
+const filterModel = new FilterModel();
 const moviesModel = new MoviesModel(moviesApiService);
 const commentsModel = new CommentsModel(moviesApiService);
-const filterModel = new FilterModel();
 
-const navigationPresenter = new MoviesFiltersPresenter(pageMainSection, moviesModel, filterModel);
-const moviesSectionPresenter = new MoviesSectionPresenter(pageMainSection, moviesModel, filterModel, commentsModel);
+const navigationPresenter = new MoviesFiltersPresenter(moviesModel, filterModel);
+const moviesSectionPresenter = new MoviesSectionPresenter(moviesModel, filterModel, commentsModel);
 
 moviesModel.init();
 navigationPresenter.init();
