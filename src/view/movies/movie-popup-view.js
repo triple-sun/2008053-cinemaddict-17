@@ -4,6 +4,7 @@ import AbstractStatefulView from '../../framework/view/abstract-stateful-view.js
 import he from 'he';
 import { humanizeCommentDate } from '../../utils/common.js';
 
+const SINGLE_GENRE = 1;
 
 const POPUP_CLOSE_BUTTON_CLASS_SELECTOR = '.film-details__close-btn';
 const POPUP_WATCHLIST_BUTTON_CLASS_SELECTOR = '.film-details__control-button--watchlist';
@@ -17,10 +18,10 @@ const POPUP_DELETE_COMMENT_CLASS_SELECTOR = '.film-details__comment-delete';
 
 const EMOJI_NODE_NAME = 'IMG';
 
-const createGenreTemplate = (filmGenre) => `<span class="film-details__genre">${filmGenre}</span>`;
+const createGenreTemplate = (movieGenre) => `<span class="film-details__genre">${movieGenre}</span>`;
 
-const createCommentTemplate = (filmComment) => {
-  const {id, author, comment, date, emotion} = filmComment;
+const createCommentTemplate = (movieComment) => {
+  const {id, author, comment, date, emotion} = movieComment;
 
   return (`<li class="film-details__comment">
     <span class="film-details__comment-emoji">
@@ -58,6 +59,9 @@ const createMoviePopupTopSectionTemplate = (data) => {
     ? ''
     : createTemplatesFromArray([...commentsModel.comments], createCommentTemplate);
 
+  const genreNoun = genre.length > SINGLE_GENRE
+    ? 'Genres'
+    : 'Genre';
   return (`
    <section class="film-details">
     <form class="film-details__inner" action="" method="get">
@@ -110,8 +114,9 @@ const createMoviePopupTopSectionTemplate = (data) => {
         <td class="film-details__cell">${release.releaseCountry}</td>
       </tr>
       <tr class="film-details__row">
-        <td class="film-details__term">Genres</td>
-        <td class="film-details__cell">${filmGenres}</tr>
+        <td class="film-details__term">${genreNoun}</td>
+        <td class="film-details__cell">${filmGenres}</td>
+      </tr>
     </table>
 
     <p class="film-details__film-description">${description}</p>
@@ -170,10 +175,9 @@ const createMoviePopupTopSectionTemplate = (data) => {
 export default class MoviePopupView extends AbstractStatefulView {
   _state = null;
 
-  constructor(movie, commentsModel, handleModelEvent, comments) {
+  constructor(movie, commentsModel) {
     super();
-    this._state = MoviePopupView.parseDataToState(movie, commentsModel, handleModelEvent, comments);
-    this._state.commentsModel.addObserver(handleModelEvent);
+    this._state = MoviePopupView.parseDataToState(movie, commentsModel);
     this.#setInnerHandlers();
   }
 
@@ -215,10 +219,8 @@ export default class MoviePopupView extends AbstractStatefulView {
   };
 
   #watchlistClickHandler = (evt) => {
-    const scrollPosition = this.element.scrollTop;
     evt.preventDefault();
     this._callback.watchlistClick();
-    this.element.scrollTop = scrollPosition;
   };
 
   #alreadyWatchedClickHandler = (evt) => {
@@ -227,6 +229,7 @@ export default class MoviePopupView extends AbstractStatefulView {
   };
 
   #favoriteClickHandler = (evt) => {
+    evt.stopPropagation();
     evt.preventDefault();
     this._callback.favoriteClick();
   };

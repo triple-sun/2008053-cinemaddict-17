@@ -1,34 +1,28 @@
 import MoviePopupView from '../view/movies/movie-popup-view.js';
 import { remove, render, RenderPosition, replace } from '../framework/render.js';
-import { DOCUMENT_NO_SCROLL_CLASS, UpdateType } from '../const.js';
-
-const body = document.body;
-const pageFooter = body.querySelector('footer');
+import { DOCUMENT_NO_SCROLL_CLASS, pageBody, pageFooterSection, UpdateType } from '../const.js';
 
 export default class MoviePopupPresenter {
+  #movie = null;
   #popupComponent = null;
 
-  #handlePopupClose = null;
-  #handleWatchlistUpdate = null;
-  #handleWatchedUpdate = null;
-  #handleFavoriteUpdate = null;
-
   #commentsModel = null;
-  #movie = null;
+  #handlePopupClose = null;
+  #handleMovieUserDataUpdate = null;
 
-  constructor (commentsModel, handlePopupClose, handleWatchlistUpdate, handleWatchedUpdate, handleFavoriteUpdate) {
+  #scrollPosition = null;
+
+  constructor (commentsModel, handlePopupClose, handleMovieUserDataUpdate) {
     this.#commentsModel = commentsModel;
     this.#handlePopupClose = handlePopupClose;
-    this.#handleWatchlistUpdate = handleWatchlistUpdate;
-    this.#handleWatchedUpdate = handleWatchedUpdate;
-    this.#handleFavoriteUpdate = handleFavoriteUpdate;
+    this.#handleMovieUserDataUpdate = handleMovieUserDataUpdate;
   }
 
   init = (movie) => {
     const prevPopupComponent = this.#popupComponent;
 
     this.#movie = movie;
-    this.#popupComponent = new MoviePopupView(movie, this.#commentsModel, this.#handleModelEvent);
+    this.#popupComponent = new MoviePopupView(movie, this.#commentsModel);
 
     this.#popupComponent.setCloseButtonClickHandler(this.#handlePopupClose);
     this.#popupComponent.setWatchlistClickHandler(this.#handlePopupWatchlistClick);
@@ -36,15 +30,19 @@ export default class MoviePopupPresenter {
     this.#popupComponent.setFavoriteClickHandler(this.#handlePopupFavoriteClick);
 
     document.addEventListener('keydown', this.#popupEscKeydownHandler);
-    body.classList.toggle(DOCUMENT_NO_SCROLL_CLASS);
+    pageBody.classList.toggle(DOCUMENT_NO_SCROLL_CLASS);
 
     if (!prevPopupComponent) {
-      render(this.#popupComponent, pageFooter, RenderPosition.AFTEREND);
+      render(this.#popupComponent, pageFooterSection, RenderPosition.AFTEREND);
       return;
     }
 
-    if (body.contains(prevPopupComponent.element)){
+    if (pageBody.contains(prevPopupComponent.element)){
       replace(this.#popupComponent, prevPopupComponent);
+    }
+
+    if (this.#scrollPosition) {
+      this.#popupComponent.element.scrollTop = this.#scrollPosition;
     }
 
     remove(prevPopupComponent);
@@ -56,40 +54,50 @@ export default class MoviePopupPresenter {
     if (evt.key === 'Escape' || evt.key === 'Esc') {
       evt.preventDefault();
       remove(this.#popupComponent);
-      body.classList.remove(DOCUMENT_NO_SCROLL_CLASS);
+      pageBody.classList.remove(DOCUMENT_NO_SCROLL_CLASS);
       document.removeEventListener('keydown', this.#popupEscKeydownHandler);
     }
   };
 
-  #handleModelEvent = (updateType, data) => {
-    const scrollPosition = this.#popupComponent.element.scrollTop;
-    switch (updateType) {
-      case UpdateType.PATCH:
-        this.init(data);
-        this.#popupComponent.element.scrollTop = scrollPosition;
-        break;
-      case UpdateType.INIT:
-        this.init(data);
-        break;
-    }
-  };
-
   #handlePopupWatchlistClick = () => {
-    const scrollPosition = this.#popupComponent.element.scrollTop;
-    this.#handleWatchlistUpdate();
-    this.#popupComponent.element.scrollTop = scrollPosition;
+    this.#scrollPosition = this.#popupComponent.element.scrollTop;
+    this.#handleMovieUserDataUpdate(
+      UpdateType.PATCH,
+      {
+        ...this.#movie,
+        userDetails: {
+          ...this.#movie.userDetails,
+          watchlist: !this.#movie.userDetails.watchlist
+        }
+      }
+    );
   };
 
   #handlePopupWatchedClick = () => {
-    const scrollPosition = this.#popupComponent.element.scrollTop;
-    this.#handleWatchedUpdate();
-    this.#popupComponent.element.scrollTop = scrollPosition;
+    this.#scrollPosition = this.#popupComponent.element.scrollTop;
+    this.#handleMovieUserDataUpdate(
+      UpdateType.PATCH,
+      {
+        ...this.#movie,
+        userDetails: {
+          ...this.#movie.userDetails,
+          alreadyWatched: !this.#movie.userDetails.alreadyWatched
+        }
+      }
+    );
   };
 
   #handlePopupFavoriteClick = () => {
-    const scrollPosition = this.#popupComponent.element.scrollTop;
-    this.#handleFavoriteUpdate();
-    this.#popupComponent.element.scrollTop = scrollPosition;
+    this.#scrollPosition = this.#popupComponent.element.scrollTop;
+    this.#handleMovieUserDataUpdate(
+      UpdateType.PATCH,
+      {
+        ...this.#movie,
+        userDetails: {
+          ...this.#movie.userDetails,
+          favorite: !this.#movie.userDetails.favorite}
+      }
+    );
   };
 }
 

@@ -2,6 +2,10 @@ import AbstractView from '../../framework/view/abstract-view.js';
 import { getReleaseYear, humanizeRuntime, setUserListButtonActiveClass } from '../../utils/movie.js';
 import { MOVIE_CARD_CONTROLS_ACTIVE_CLASS } from '../../const.js';
 
+const MAX_DESCRIPTION_LENGTH = 140;
+const SHORT_DESCRIPTION_LENGTH = 139;
+const DESCRIPTION_ELLIPSIS = '...';
+
 const MOVIE_CARD_LINK_CLASS_SELECTOR = '.film-card__link';
 const MOVIE_CARD_CONTROLS_WATCHLIST_CLASS_SELECTOR = '.film-card__controls-item--add-to-watchlist';
 const MOVIE_CARD_CONTROLS_WATCHED_CLASS_SELECTOR = '.film-card__controls-item--mark-as-watched';
@@ -11,6 +15,10 @@ const createMovieCardTemplate = (movie) => {
   const {comments, filmInfo, userDetails} = movie;
   const {title, totalRating, poster, release, runtime, genre, description} = filmInfo;
   const {watchlist, alreadyWatched, favorite} = userDetails;
+
+  const shortDescription = description.length > MAX_DESCRIPTION_LENGTH
+    ? description.substring(0, SHORT_DESCRIPTION_LENGTH).trim() + DESCRIPTION_ELLIPSIS
+    : description;
 
   return (`
     <article class="film-card">
@@ -23,7 +31,7 @@ const createMovieCardTemplate = (movie) => {
           <span class="film-card__genre">${genre.join(', ')}</span>
         </p>
         <img src="${poster}" alt="" class="film-card__poster">
-        <p class="film-card__description">${description}</p>
+        <p class="film-card__description">${shortDescription}</p>
         <span class="film-card__comments">${comments.length} comments</span>
       </a>
       <div class="film-card__controls">

@@ -12,7 +12,7 @@ const END_POINT = 'https://17.ecmascript.pages.academy/cinemaddict';
 const pageBody = document.body;
 const pageHeaderSection = pageBody.querySelector('.header');
 const pageMainSection = pageBody.querySelector('.main');
-
+const pageFooterSection = pageBody.querySelector('.footer');
 
 const FilterType = {
   ALL: 'all',
@@ -55,6 +55,7 @@ export {
   pageBody,
   pageHeaderSection,
   pageMainSection,
+  pageFooterSection,
   FilterType,
   SortType,
   UserAction,

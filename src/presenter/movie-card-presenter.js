@@ -4,24 +4,30 @@ import MoviePopupPresenter from './movie-popup-presenter.js';
 import { DOCUMENT_NO_SCROLL_CLASS, UpdateType } from '../const.js';
 
 export default class MovieCardPresenter {
-  #movieCardComponent = null;
-  #moviesListContainerComponent = null;
-  #handleMovieUserDataUpdate = null;
-  #moviesModel = null;
-  #commentsModel = null;
-
   #movie = null;
   #popupPresenter = null;
+  #movieCardComponent = null;
+
+  #moviesListContainerComponent = null;
+  #handleModelEvent = null;
+  #handleMovieUserDataUpdate = null;
   #hidePopup = null;
+
+  #moviesModel = null;
+  #commentsModel = null;
+  #movieCardPresenters = null;
 
   #isPopupOpen = false;
 
-  constructor(moviesListContainerComponent, handleMovieUserDataUpdate, hidePopup, moviesModel, commentsModel) {
+  constructor(moviesListContainerComponent, handleMovieUserDataUpdate, handleModelEvent, hidePopup, moviesModel, commentsModel, movieCardPresenters) {
     this.#moviesListContainerComponent = moviesListContainerComponent;
     this.#handleMovieUserDataUpdate = handleMovieUserDataUpdate;
     this.#hidePopup = hidePopup;
     this.#moviesModel = moviesModel;
     this.#commentsModel = commentsModel;
+    this.#handleModelEvent = handleModelEvent;
+    this.#movieCardPresenters = movieCardPresenters;
+
   }
 
   init = (movie) => {
@@ -58,7 +64,22 @@ export default class MovieCardPresenter {
     if (this.#popupPresenter) {
       document.body.classList.remove(DOCUMENT_NO_SCROLL_CLASS);
       this.#popupPresenter.destroy();
+      this.#moviesModel.removeObserver(this.#handlePopupModelEvent);
+      this.#commentsModel.removeObserver(this.#handleModelEvent);
+      this.#moviesModel.addObserver(this.#handleModelEvent);
       this.#isPopupOpen = false;
+    }
+  };
+
+  #handlePopupModelEvent = (updateType, data) => {
+    switch (updateType) {
+      case UpdateType.PATCH:
+        this.#movieCardPresenters.get(data.id).init(data);
+        this.#popupPresenter.init(data);
+        break;
+      case UpdateType.INIT:
+        this.#popupPresenter.init(data);
+        break;
     }
   };
 
@@ -68,24 +89,13 @@ export default class MovieCardPresenter {
     this.#popupPresenter = new MoviePopupPresenter(
       this.#commentsModel,
       this.hidePopup,
-      this.#handleWatchlistClick,
-      this.#handleAlreadyWatchedClick,
-      this.#handleFavoriteClick,
+      this.#handleMovieUserDataUpdate
     );
     this.#popupPresenter.init(this.#movie);
     this.#isPopupOpen = true;
-  };
-
-  #handleFavoriteClick = () => {
-    this.#handleMovieUserDataUpdate(
-      UpdateType.MINOR,
-      {
-        ...this.#movie,
-        userDetails: {
-          ...this.#movie.userDetails,
-          favorite: !this.#movie.userDetails.favorite}
-      }
-    );
+    this.#moviesModel.removeObserver(this.#handleModelEvent);
+    this.#moviesModel.addObserver(this.#handlePopupModelEvent);
+    this.#commentsModel.addObserver(this.#handlePopupModelEvent);
   };
 
   #handleWatchlistClick = () => {
@@ -111,5 +121,17 @@ export default class MovieCardPresenter {
           alreadyWatched: !this.#movie.userDetails.alreadyWatched
         }
       });
+  };
+
+  #handleFavoriteClick = () => {
+    this.#handleMovieUserDataUpdate(
+      UpdateType.MINOR,
+      {
+        ...this.#movie,
+        userDetails: {
+          ...this.#movie.userDetails,
+          favorite: !this.#movie.userDetails.favorite}
+      }
+    );
   };
 }

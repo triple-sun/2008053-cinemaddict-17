@@ -29,11 +29,10 @@ export default class MoviesSectionPresenter {
   #userTitleComponent = null;
 
   #currentSortType = SortType.DEFAULT;
-  #filterType = FilterType.ALL;
   #isLoading = true;
 
   #renderedMovieCardCount = CARDS_PER_STEP;
-  #movieCardPresenter = new Map();
+  #movieCardPresenters = new Map();
 
   #loadingComponent = new MoviesListLoadingView();
   #moviesSectionComponent = new MoviesSectionView();
@@ -91,14 +90,16 @@ export default class MoviesSectionPresenter {
   #renderMovieCard = (movie) => {
     const movieCardPresenter = new MovieCardPresenter(
       this.#moviesListContainerComponent.element,
-      this.#handleMovieDataUpdate,
+      this.#handleMovieUserDataUpdate,
+      this.#handleModelEvent,
       this.#hidePopup,
       this.#moviesModel,
-      this.#commentsModel
+      this.#commentsModel,
+      this.#movieCardPresenters
     );
 
     movieCardPresenter.init(movie);
-    this.#movieCardPresenter.set(movie.id, movieCardPresenter);
+    this.#movieCardPresenters.set(movie.id, movieCardPresenter);
   };
 
   #renderMovieCards = (movies) => movies.forEach(this.#renderMovieCard);
@@ -122,8 +123,8 @@ export default class MoviesSectionPresenter {
   #clearMovieCardsList = ({resetRenderedMovieCardCount = false, resetSortType = false} = {}) => {
     const moviesCount = this.movies.length;
 
-    this.#movieCardPresenter.forEach((presenter) => presenter.destroy());
-    this.#movieCardPresenter.clear();
+    this.#movieCardPresenters.forEach((presenter) => presenter.destroy());
+    this.#movieCardPresenters.clear();
 
     remove(this.#sortComponent);
     remove(this.#userTitleComponent);
@@ -154,8 +155,6 @@ export default class MoviesSectionPresenter {
 
     render(this.#moviesSectionComponent, this.#pageMainSection);
     render(this.#moviesListSectionComponent, this.#moviesSectionComponent.element);
-
-    this.#moviesListContainerComponent.element.innerHTML = '';
 
     if (this.#isLoading) {
       this.#renderLoading();
@@ -194,7 +193,6 @@ export default class MoviesSectionPresenter {
     const movies = this.movies.slice(this.#renderedMovieCardCount, newRenderedMovieCardCount);
 
     this.#renderMovieCards(movies);
-
     this.#renderedMovieCardCount = newRenderedMovieCardCount;
 
     if (this.#renderedMovieCardCount >= movieCardsCount) {
@@ -203,14 +201,15 @@ export default class MoviesSectionPresenter {
 
   };
 
-  #handleMovieDataUpdate = (updateType, update) => this.#moviesModel.updateMovie(updateType, update);
+  #handleMovieUserDataUpdate = (updateType, update) => this.#moviesModel.updateMovie(updateType, update);
 
   #handleModelEvent = (updateType, data) => {
     switch (updateType) {
       case UpdateType.PATCH:
-        this.#movieCardPresenter.get(data.id).init(data);
+        this.#movieCardPresenters.get(data.id).init(data);
         break;
       case UpdateType.MINOR:
+        this.#movieCardPresenters.get(data.id).init(data);
         this.#clearMovieCardsList();
         this.#renderMovieCardsBoard();
         break;
@@ -229,13 +228,10 @@ export default class MoviesSectionPresenter {
   #handleSortTypeChange = (sortType) => {
     if (this.#currentSortType !== sortType) {
       this.#currentSortType = sortType;
-      this.#clearMovieCardsList({resetRenderedTaskCount: true});
+      this.#clearMovieCardsList({resetRenderedMovieCardCount: true});
       this.#renderMovieCardsBoard();
     }
   };
 
-  #hidePopup = () => {
-    this.#movieCardPresenter.forEach((presenter) => presenter.hidePopup());
-  };
-
+  #hidePopup = () => this.#movieCardPresenters.forEach((presenter) => presenter.hidePopup());
 }
