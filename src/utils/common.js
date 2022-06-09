@@ -1,52 +1,106 @@
-import { MAX_YEAR, MIN_YEAR, MOCK_SENTENCES } from '../const.js';
+import dayjs from 'dayjs';
+import { humanizeCommentDateTime } from './movie';
 
-// Функция из интернета по генерации случайного числа из диапазона
-// Источник - https://github.com/you-dont-need/You-Dont-Need-Lodash-Underscore#_random
-const getRandomInteger = (a = 0, b = 1) => {
-  const lower = Math.ceil(Math.min(a, b));
-  const upper = Math.floor(Math.max(a, b));
+//https://stackoverflow.com/a/59769834
+const toCamel = (str) => str
+  .replace(
+    /([-_][a-z])/ig, ($1) => $1
+      .toUpperCase()
+      .replace('-', '')
+      .replace('_', '')
+  );
 
-  return Math.floor(lower + Math.random() * (upper - lower + 1));
-};
-//Функция взята со StackOverflow: https://stackoverflow.com/questions/17726753/get-a-random-number-between-0-0200-and-0-120-float-numbers и доработана
-const getRandomFloat = (a, b, decimal = 1) => {
-  const min = Math.min(Math.abs(a), Math.abs(b));
-  const max = Math.max(Math.abs(a), Math.abs(b));
+const toSnake = (str) => str
+  .replace(
+    /([A-Z])/g, ($1)=> `_${$1
+      .toLowerCase()}`
+  );
 
-  return Number(Math.random() * (max - min) + min).toFixed(decimal);
-};
+const isObject = (obj) => obj === Object(obj) && !Array.isArray(obj) && typeof obj !== 'function';
 
-//https://stackoverflow.com/a/46382735
-const getRandomIntegerArray = (length, max) => Array(length).fill().map(() => Math.round(Math.random() * max));
+const snakeCaseKeysToCamelCase = (obj) => {
+  if (isObject(obj)) {
+    const n = {};
 
-const getRandomBoolean = () => Math.random() < 0.5;
+    Object.keys(obj)
+      .forEach((k) => {
+        n[toCamel(k)] = snakeCaseKeysToCamelCase(obj[k]);
+      });
 
-const getRandomIndex = (arr) => arr[getRandomInteger(0, arr.length - 1)];
-
-const getRandomArrayElements = (arr, amount) => {
-  const elements = [];
-  for (let i = 0; i < amount; i++) {
-    elements.push(getRandomIndex(arr));
+    return n;
+  } else if (Array.isArray(obj)) {
+    return obj.map((i) => snakeCaseKeysToCamelCase(i));
   }
-  return elements;
+
+  return obj;
 };
 
-//https://gist.github.com/miguelmota/5b67e03845d840c949c4
-const getRandomDate = (startYear = MIN_YEAR, endYear = MAX_YEAR) => {
-  const startDate = new Date(startYear, 0, 1);
-  const endDate = new Date(endYear, 0, 1);
-  return new Date(startDate.getTime() + Math.random() * (endDate.getTime() - startDate.getTime()));
+const camelCaseKeysToSnakeCase = (obj) => {
+  if (isObject(obj)) {
+    const n = {};
+
+    Object.keys(obj)
+      .forEach((k) => {
+        n[toSnake(k)] = camelCaseKeysToSnakeCase(obj[k]);
+      });
+
+    return n;
+  } else if (Array.isArray(obj)) {
+    return obj.map((i) => camelCaseKeysToSnakeCase(i));
+  }
+
+  return obj;
 };
 
-const generateSentences = (amount) => getRandomArrayElements(MOCK_SENTENCES, amount).join(' ');
+const getDateDifference = (units, date) => dayjs().diff(date, units);
+
+const humanizeCommentDate = (date) => {
+  const commentDate = dayjs(date);
+
+  if (getDateDifference('minutes', commentDate) < 1) {
+    return 'Now';
+  }
+
+  if (getDateDifference('hours', commentDate) < 1) {
+    return 'A few minutes ago';
+  }
+
+  if (getDateDifference('days', commentDate) < 1) {
+    return 'A few hours ago';
+  }
+
+  if (getDateDifference('months', commentDate) < 1) {
+    if (getDateDifference('days', commentDate) === 1){
+      return 'A day ago';
+    }
+    if (getDateDifference('days', commentDate) > 1) {
+      return `${getDateDifference('days', commentDate)} days ago`;
+    }
+  }
+
+  if (getDateDifference('years', commentDate) < 1) {
+    if (getDateDifference('months', commentDate) === 1){
+      return 'A month ago';
+    }
+    if (getDateDifference('months', commentDate) > 1) {
+      return `${getDateDifference('months', commentDate)} months ago`;
+    }
+  }
+
+  if (getDateDifference('years', commentDate) > 1) {
+    if (getDateDifference('years', commentDate) === 1){
+      return 'A year ago';
+    }
+    if (getDateDifference('years', commentDate) > 1) {
+      return `${getDateDifference('year', commentDate)} years ago`;
+    }
+  }
+
+  return humanizeCommentDateTime(date);
+};
 
 export {
-  getRandomInteger,
-  getRandomFloat,
-  getRandomIntegerArray,
-  getRandomBoolean,
-  getRandomIndex,
-  getRandomArrayElements,
-  getRandomDate,
-  generateSentences
+  snakeCaseKeysToCamelCase,
+  camelCaseKeysToSnakeCase,
+  humanizeCommentDate
 };

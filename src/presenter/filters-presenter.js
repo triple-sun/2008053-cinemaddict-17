@@ -3,46 +3,45 @@ import { remove, render, replace } from '../framework/render.js';
 import { FilterType, UpdateType } from '../const.js';
 import { filter } from '../utils/filter.js';
 
-
-export default class FilmsFiltersPresenter {
+export default class MoviesFiltersPresenter {
   #pageMainSection = null;
-  #filmsModel = null;
+  #moviesModel = null;
   #filterModel = null;
 
   #filterComponent = null;
 
-  constructor(pageMainSection, filmCardsModel, filterModel) {
+  constructor(pageMainSection, moviesModel, filterModel) {
     this.#pageMainSection = pageMainSection;
-    this.#filmsModel = filmCardsModel;
+    this.#moviesModel = moviesModel;
     this.#filterModel = filterModel;
 
-    this.#filmsModel.addObserver(this.#handleModelEvent);
+    this.#moviesModel.addObserver(this.#handleModelEvent);
     this.#filterModel.addObserver(this.#handleModelEvent);
   }
 
   get filters() {
-    const films = this.#filmsModel.films;
+    const movies = this.#moviesModel.movies;
 
     return [
       {
         type: FilterType.ALL,
         name: 'All Movies',
-        count: filter[FilterType.ALL](films).length,
+        count: filter[FilterType.ALL](movies).length,
       },
       {
         type: FilterType.WATCHLIST,
         name: 'Watchlist',
-        count: filter[FilterType.WATCHLIST](films).length,
+        count: filter[FilterType.WATCHLIST](movies).length,
       },
       {
         type: FilterType.HISTORY,
         name: 'History',
-        count: filter[FilterType.HISTORY](films).length,
+        count: filter[FilterType.HISTORY](movies).length,
       },
       {
         type: FilterType.FAVORITES,
         name: 'Favorites',
-        count: filter[FilterType.FAVORITES](films).length,
+        count: filter[FilterType.FAVORITES](movies).length,
       },
     ];
   }
@@ -63,9 +62,7 @@ export default class FilmsFiltersPresenter {
     remove(prevFilterComponent);
   };
 
-  #handleModelEvent = () => {
-    this.init();
-  };
+  #handleModelEvent = () => this.init();
 
   #handleFilterTypeChange = (filterType) => {
     if (this.#filterModel.filter !== filterType) {

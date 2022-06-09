@@ -1,9 +1,10 @@
-import { FILM_POPUP_CONTROLS_ACTIVE_CLASS, UpdateType, UserAction } from '../../const.js';
-import { createTemplatesFromArray, humanizeCommentDateTime, humanizeReleaseDate, humanizeRuntime, setUserListButtonActiveClass } from '../../utils/film.js';
-import { generateComment } from '../../mock/comment.js';
+import { ErrorType, MOVIE_POPUP_CONTROLS_ACTIVE_CLASS, UpdateType, UserAction } from '../../const.js';
+import { createTemplatesFromArray, generateComment, humanizeReleaseDate, humanizeRuntime, setUserListButtonActiveClass } from '../../utils/movie.js';
 import AbstractStatefulView from '../../framework/view/abstract-stateful-view.js';
 import he from 'he';
+import { humanizeCommentDate } from '../../utils/common.js';
 
+const SINGLE_GENRE = 1;
 
 const POPUP_CLOSE_BUTTON_CLASS_SELECTOR = '.film-details__close-btn';
 const POPUP_WATCHLIST_BUTTON_CLASS_SELECTOR = '.film-details__control-button--watchlist';
@@ -17,10 +18,10 @@ const POPUP_DELETE_COMMENT_CLASS_SELECTOR = '.film-details__comment-delete';
 
 const EMOJI_NODE_NAME = 'IMG';
 
-const createGenreTemplate = (filmGenre) => `<span class="film-details__genre">${filmGenre}</span>`;
+const createGenreTemplate = (movieGenre) => `<span class="film-details__genre">${movieGenre}</span>`;
 
-const createCommentTemplate = (filmComment) => {
-  const {id, author, comment, date, emotion} = filmComment;
+const createCommentTemplate = (movieComment) => {
+  const {id, author, comment, date, emotion} = movieComment;
 
   return (`<li class="film-details__comment">
     <span class="film-details__comment-emoji">
@@ -30,7 +31,7 @@ const createCommentTemplate = (filmComment) => {
     <p class="film-details__comment-text">${he.encode(comment)}</p>
     <p class="film-details__comment-info">
     <span class="film-details__comment-author">${author}</span>
-    <span class="film-details__comment-day">${humanizeCommentDateTime(date)}</span>
+    <span class="film-details__comment-day">${humanizeCommentDate(date)}</span>
     <button class="film-details__comment-delete" data-comment-id="${id}">Delete</button>
   </p>
   </div>
@@ -43,14 +44,24 @@ const showNewCommentText = (newCommentText) => newCommentText
   ? `<textarea class='film-details__comment-input' name='comment'>${newCommentText}</textarea>`
   : '<textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment"></textarea>';
 
-const createFilmPopupTopSectionTemplate = (data) => {
-  const {comments, filmInfo, userDetails, commentsModel, newCommentEmoji, newCommentText} = data;
+const createMoviePopupTopSectionTemplate = (data) => {
+  const {filmInfo, userDetails, commentsModel, newCommentEmoji, newCommentText} = data;
   const {title, poster, ageRating, totalRating, director, writers, actors, release, runtime, genre, description} = filmInfo;
   const {watchlist, alreadyWatched, favorite} = userDetails;
 
   const filmGenres = createTemplatesFromArray([...genre], createGenreTemplate);
-  const filmComments = createTemplatesFromArray([...commentsModel.comments], createCommentTemplate);
 
+  const commentsCount = commentsModel.comments === ErrorType.COMMENTS_ERROR
+    ? '<h2 class="films-list__title">Failed to load comments</h2>'
+    : `<h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${commentsModel.comments.length}</span></h3>`;
+
+  const filmComments = commentsModel.comments === ErrorType.COMMENTS_ERROR
+    ? ''
+    : createTemplatesFromArray([...commentsModel.comments], createCommentTemplate);
+
+  const genreNoun = genre.length > SINGLE_GENRE
+    ? 'Genres'
+    : 'Genre';
   return (`
    <section class="film-details">
     <form class="film-details__inner" action="" method="get">
@@ -103,8 +114,9 @@ const createFilmPopupTopSectionTemplate = (data) => {
         <td class="film-details__cell">${release.releaseCountry}</td>
       </tr>
       <tr class="film-details__row">
-        <td class="film-details__term">Genres</td>
-        <td class="film-details__cell">${filmGenres}</tr>
+        <td class="film-details__term">${genreNoun}</td>
+        <td class="film-details__cell">${filmGenres}</td>
+      </tr>
     </table>
 
     <p class="film-details__film-description">${description}</p>
@@ -112,14 +124,14 @@ const createFilmPopupTopSectionTemplate = (data) => {
   </div>
 
 <section class="film-details__controls">
-  <button type="button" class="film-details__control-button film-details__control-button--watchlist ${setUserListButtonActiveClass(watchlist, FILM_POPUP_CONTROLS_ACTIVE_CLASS)}" id="watchlist" name="watchlist">Add to watchlist</button>
-  <button type="button" class="film-details__control-button film-details__control-button--watched ${setUserListButtonActiveClass(alreadyWatched, FILM_POPUP_CONTROLS_ACTIVE_CLASS)} " id="watched" name="watched">Already watched</button>
-  <button type="button" class="film-details__control-button film-details__control-button--favorite ${setUserListButtonActiveClass(favorite, FILM_POPUP_CONTROLS_ACTIVE_CLASS)}" id="favorite" name="favorite">Add to favorites</button>
+  <button type="button" class="film-details__control-button film-details__control-button--watchlist ${setUserListButtonActiveClass(watchlist, MOVIE_POPUP_CONTROLS_ACTIVE_CLASS)}" id="watchlist" name="watchlist">Add to watchlist</button>
+  <button type="button" class="film-details__control-button film-details__control-button--watched ${setUserListButtonActiveClass(alreadyWatched, MOVIE_POPUP_CONTROLS_ACTIVE_CLASS)} " id="watched" name="watched">Already watched</button>
+  <button type="button" class="film-details__control-button film-details__control-button--favorite ${setUserListButtonActiveClass(favorite, MOVIE_POPUP_CONTROLS_ACTIVE_CLASS)}" id="favorite" name="favorite">Add to favorites</button>
 </section>
 </div>
 <div class="film-details__bottom-container">
 <section class="film-details__comments-wrap">
-  <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${comments.length}</span></h3>
+  ${commentsCount}
 
   <ul class="film-details__comments-list">
   ${filmComments}
@@ -160,18 +172,17 @@ const createFilmPopupTopSectionTemplate = (data) => {
 `);
 };
 
-export default class FilmPopupView extends AbstractStatefulView {
+export default class MoviePopupView extends AbstractStatefulView {
   _state = null;
 
-  constructor(film, commentsModel, handleModelEvent) {
+  constructor(movie, commentsModel) {
     super();
-    this._state = FilmPopupView.parseDataToState(film, commentsModel, handleModelEvent);
-    this._state.commentsModel.addObserver(handleModelEvent);
+    this._state = MoviePopupView.parseDataToState(movie, commentsModel);
     this.#setInnerHandlers();
   }
 
   get template() {
-    return createFilmPopupTopSectionTemplate(this._state);
+    return createMoviePopupTopSectionTemplate(this._state);
   }
 
   _restoreHandlers = () => {
@@ -208,10 +219,8 @@ export default class FilmPopupView extends AbstractStatefulView {
   };
 
   #watchlistClickHandler = (evt) => {
-    const scrollPosition = this.element.scrollTop;
     evt.preventDefault();
     this._callback.watchlistClick();
-    this.element.scrollTop = scrollPosition;
   };
 
   #alreadyWatchedClickHandler = (evt) => {
@@ -220,6 +229,7 @@ export default class FilmPopupView extends AbstractStatefulView {
   };
 
   #favoriteClickHandler = (evt) => {
+    evt.stopPropagation();
     evt.preventDefault();
     this._callback.favoriteClick();
   };
@@ -272,8 +282,9 @@ export default class FilmPopupView extends AbstractStatefulView {
     this.element.querySelectorAll(POPUP_DELETE_COMMENT_CLASS_SELECTOR).forEach((comment) => comment.addEventListener('click', this.#deleteCommentHandler));
   };
 
-  static parseDataToState = (film, commentsModel, handleModelEvent) => ({
-    ...film,
+  static parseDataToState = (movie, commentsModel, handleModelEvent, comments) => ({
+    ...movie,
+    comments,
     commentsModel,
     handleModelEvent,
     newCommentEmoji: null,

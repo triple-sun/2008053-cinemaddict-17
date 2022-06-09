@@ -1,37 +1,48 @@
 import Observable from '../framework/observable.js';
-import { ALL_COMMENTS } from '../mock/comment.js';
+import { ErrorType, UpdateType } from '../const.js';
 
 export default class CommentsModel extends Observable {
-  #film = null;
+  #moviesApiService = null;
+  #movie = null;
+  #comments = [];
 
-  constructor(film) {
+  constructor(moviesApiService) {
     super();
-    this.#film = film;
+    this.#moviesApiService = moviesApiService;
   }
 
   get comments() {
-    return this.#film.comments.map((id) => ALL_COMMENTS.find((element) => element.id === id));
+    return this.#comments;
   }
 
+  init = async (movie) => {
+    this.#movie = movie;
+    try {
+      this.#comments = await this.#moviesApiService.getComments(movie);
+    } catch(err) {
+      this.#comments = ErrorType.COMMENTS_ERROR;
+    }
+
+    this._notify(UpdateType.INIT, this.#movie);
+  };
+
   addComment = (updateType, newComment) => {
-    this.#film.comments = [
+    this.#movie.comments = [
       newComment.id,
-      ...this.#film.comments,
+      ...this.#movie.comments,
     ];
 
-    ALL_COMMENTS.push(newComment);
-
-    this._notify(updateType, this.#film);
+    this._notify(updateType, this.#movie);
   };
 
   deleteComment = (updateType, commentID) => {
-    const index = this.#film.comments.findIndex((comment) => comment === commentID);
+    const index = this.#movie.comments.findIndex((comment) => comment === commentID);
 
-    this.#film.comments = [
-      ...this.#film.comments.slice(0, index),
-      ...this.#film.comments.slice(index + 1),
+    this.#movie.comments = [
+      ...this.#movie.comments.slice(0, index),
+      ...this.#movie.comments.slice(index + 1),
     ];
 
-    this._notify(updateType, this.#film);
+    this._notify(updateType, this.#movie);
   };
 }

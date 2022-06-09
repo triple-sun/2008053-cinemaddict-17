@@ -1,4 +1,5 @@
 import dayjs from 'dayjs';
+import { nanoid } from 'nanoid';
 
 const getReleaseYear = (releaseDate) => dayjs(releaseDate).format('YYYY');
 
@@ -30,12 +31,6 @@ const getWeightForNullArrayElement = (elemA, elemB) => {
 
 const sortFilmsByDefault = (filmA, filmB) => filmA.id.toUpperCase() > filmB.id.toUpperCase() ? 1 : -1;
 
-const sortFilmsByDateUp = (filmA, filmB) => {
-  const weight = getWeightForNullArrayElement(filmA.filmInfo.release.date, filmB.filmInfo.release.date);
-
-  return weight ?? dayjs(filmA.filmInfo.release.date).diff(filmB.filmInfo.release.date);
-};
-
 const sortFilmsByDateDown = (filmA, filmB) => {
   const weight = getWeightForNullArrayElement(filmA.filmInfo.release.date, filmB.filmInfo.release.date);
 
@@ -48,6 +43,14 @@ const sortFilmsByRatingDown = (filmA, filmB) => {
   return weight ?? filmB.filmInfo.totalRating - filmA.filmInfo.totalRating;
 };
 
+const generateComment = (author, comment, date, emotion) => ({
+  id: nanoid(),
+  author: author,
+  comment: comment,
+  date: date,
+  emotion: emotion
+});
+
 
 export {
   getReleaseYear,
@@ -57,7 +60,7 @@ export {
   createTemplatesFromArray,
   humanizeCommentDateTime,
   sortFilmsByDefault,
-  sortFilmsByDateUp,
   sortFilmsByDateDown,
-  sortFilmsByRatingDown
+  sortFilmsByRatingDown,
+  generateComment
 };
