@@ -45,10 +45,12 @@ const createMovieCardTemplate = (movie) => {
 
 export default class MovieCardView extends AbstractView {
   #movie = null;
+  #commentsModel = null;
 
-  constructor(movie) {
+  constructor(movie, commentsModel) {
     super();
     this.#movie = movie;
+    this.#commentsModel = commentsModel;
   }
 
   get movie() {
@@ -56,7 +58,7 @@ export default class MovieCardView extends AbstractView {
   }
 
   get template() {
-    return createMovieCardTemplate(this.movie);
+    return createMovieCardTemplate(this.#movie, this.#commentsModel);
   }
 
   setOpenPopupClickHandler = (cb) => {

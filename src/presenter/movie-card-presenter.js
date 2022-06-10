@@ -74,6 +74,9 @@ export default class MovieCardPresenter {
   #handlePopupModelEvent = (updateType, data) => {
     switch (updateType) {
       case UpdateType.PATCH:
+        this.#popupPresenter.init(this.#movie);
+        break;
+      case UpdateType.MINOR:
         this.#movieCardPresenters.get(data.id).init(data);
         this.#popupPresenter.init(data);
         break;

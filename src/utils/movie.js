@@ -1,5 +1,4 @@
 import dayjs from 'dayjs';
-import { nanoid } from 'nanoid';
 
 const getReleaseYear = (releaseDate) => dayjs(releaseDate).format('YYYY');
 
@@ -43,8 +42,8 @@ const sortFilmsByRatingDown = (filmA, filmB) => {
   return weight ?? filmB.filmInfo.totalRating - filmA.filmInfo.totalRating;
 };
 
-const generateComment = (author, comment, date, emotion) => ({
-  id: nanoid(),
+const generateComment = (id, author, comment, date, emotion) => ({
+  id: id,
   author: author,
   comment: comment,
   date: date,

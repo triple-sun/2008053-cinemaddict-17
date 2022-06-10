@@ -1,12 +1,21 @@
-import MoviePopupView from '../view/movies/movie-popup-view.js';
 import { remove, render, RenderPosition, replace } from '../framework/render.js';
-import { DOCUMENT_NO_SCROLL_CLASS, pageFooterSection, UpdateType } from '../const.js';
+import { DOCUMENT_NO_SCROLL_CLASS, pageFooterSection, UpdateType, UserAction } from '../const.js';
+import MoviePopupCommentPresenter from './movie-popup-comment-presenter.js';
+import MoviePopupSectionView from '../view/movies/movie-popup-section-view.js';
+import MoviePopupTopContainerView from '../view/movies/movie-popup-top-container-view.js';
+import MoviePopupBottomContainerView from '../view/movies/movie-popup-bottom-container-view.js';
+import MoviePopupNewCommentView from '../view/movies/movie-popup-new-comment-view.js';
+import MoviePopupFormView from '../view/movies/movie-popup-form-view.js';
 
 const pageBody = document.querySelector('body');
 
 export default class MoviePopupPresenter {
   #movie = null;
-  #popupComponent = null;
+  #popupSectionComponent = null;
+  #popupFormComponent = null;
+  #popupTopContainerComponent = null;
+  #popupBottomContainerComponent = null;
+  #popupNewCommentForm = null;
 
   #commentsModel = null;
   #handlePopupClose = null;
@@ -21,36 +30,62 @@ export default class MoviePopupPresenter {
   }
 
   init = (movie) => {
-    const prevPopupComponent = this.#popupComponent;
+    const prevPopupComponent = this.#popupSectionComponent;
 
     this.#movie = movie;
-    this.#popupComponent = new MoviePopupView(movie, this.#commentsModel);
+    this.#popupSectionComponent = new MoviePopupSectionView();
+    this.#popupFormComponent = new MoviePopupFormView();
+    this.#popupTopContainerComponent = new MoviePopupTopContainerView(movie, this.#commentsModel);
+    this.#popupBottomContainerComponent = new MoviePopupBottomContainerView(this.#commentsModel);
+    this.#popupNewCommentForm = new MoviePopupNewCommentView(this.#commentsModel, this.#handleCommentAction);
 
-    this.#popupComponent.setCloseButtonClickHandler(this.#handlePopupClose);
-    this.#popupComponent.setWatchlistClickHandler(this.#handlePopupWatchlistClick);
-    this.#popupComponent.setAlreadyWatchedClickHandler(this.#handlePopupWatchedClick);
-    this.#popupComponent.setFavoriteClickHandler(this.#handlePopupFavoriteClick);
+    this.#renderPopupForm();
+    this.#renderPopupTopContainer();
+    this.#renderPopupBottomContainer();
+    this.#renderComments();
+    this.#renderNewCommentForm();
+
+    this.#popupTopContainerComponent.setCloseButtonClickHandler(this.#handlePopupClose);
+    this.#popupTopContainerComponent.setWatchlistClickHandler(this.#handlePopupWatchlistClick);
+    this.#popupTopContainerComponent.setAlreadyWatchedClickHandler(this.#handlePopupWatchedClick);
+    this.#popupTopContainerComponent.setFavoriteClickHandler(this.#handlePopupFavoriteClick);
 
     document.addEventListener('keydown', this.#popupEscKeydownHandler);
     pageBody.classList.add(DOCUMENT_NO_SCROLL_CLASS);
 
     if (!prevPopupComponent) {
-      render(this.#popupComponent, pageFooterSection, RenderPosition.AFTEREND);
+      render(this.#popupSectionComponent, pageFooterSection, RenderPosition.AFTEREND);
       return;
     }
 
     if (pageBody.contains(prevPopupComponent.element)){
-      replace(this.#popupComponent, prevPopupComponent);
+      this.#scrollPosition = prevPopupComponent.element.scrollTop;
+      replace(this.#popupSectionComponent, prevPopupComponent);
     }
 
     remove(prevPopupComponent);
 
     if (this.#scrollPosition) {
-      this.#popupComponent.element.scrollTop = this.#scrollPosition;
+      this.#popupSectionComponent.element.scrollTop = this.#scrollPosition;
     }
   };
 
-  destroy = () => remove(this.#popupComponent);
+  #renderPopupForm = () => render(this.#popupFormComponent, this.#popupSectionComponent.element);
+
+  #renderComment = (comment) => {
+    const commentPresenter = new MoviePopupCommentPresenter(this.#popupBottomContainerComponent, this.#handleCommentAction);
+    commentPresenter.init(comment);
+  };
+
+  #renderPopupTopContainer = () => render(this.#popupTopContainerComponent, this.#popupFormComponent.element);
+
+  #renderPopupBottomContainer = () => render(this.#popupBottomContainerComponent, this.#popupFormComponent.element);
+
+  #renderComments = () => this.#commentsModel.comments.forEach(this.#renderComment);
+
+  #renderNewCommentForm = () => render(this.#popupNewCommentForm, this.#popupBottomContainerComponent.element);
+
+  destroy = () => remove(this.#popupSectionComponent);
 
   #popupEscKeydownHandler = (evt) => {
     if (evt.key === 'Escape' || evt.key === 'Esc') {
@@ -61,9 +96,9 @@ export default class MoviePopupPresenter {
   };
 
   #handlePopupWatchlistClick = () => {
-    this.#scrollPosition = this.#popupComponent.element.scrollTop;
+    this.#scrollPosition = this.#popupSectionComponent.element.scrollTop;
     this.#handleMovieUserDataUpdate(
-      UpdateType.PATCH,
+      UpdateType.MINOR,
       {
         ...this.#movie,
         userDetails: {
@@ -75,9 +110,9 @@ export default class MoviePopupPresenter {
   };
 
   #handlePopupWatchedClick = () => {
-    this.#scrollPosition = this.#popupComponent.element.scrollTop;
+    this.#scrollPosition = this.#popupSectionComponent.element.scrollTop;
     this.#handleMovieUserDataUpdate(
-      UpdateType.PATCH,
+      UpdateType.MINOR,
       {
         ...this.#movie,
         userDetails: {
@@ -89,9 +124,9 @@ export default class MoviePopupPresenter {
   };
 
   #handlePopupFavoriteClick = () => {
-    this.#scrollPosition = this.#popupComponent.element.scrollTop;
+    this.#scrollPosition = this.#popupSectionComponent.element.scrollTop;
     this.#handleMovieUserDataUpdate(
-      UpdateType.PATCH,
+      UpdateType.MINOR,
       {
         ...this.#movie,
         userDetails: {
@@ -99,6 +134,19 @@ export default class MoviePopupPresenter {
           favorite: !this.#movie.userDetails.favorite}
       }
     );
+  };
+
+  #handleCommentAction = (actionType, updateType, update) => {
+    switch (actionType) {
+      case UserAction.ADD_COMMENT:
+        this.#popupFormComponent.element.disabled = 'disabled';
+        this.#commentsModel.addComment(updateType, update);
+        this.updateElement({newCommentEmoji: null, newCommentText: null});
+        break;
+      case UserAction.DELETE_COMMENT:
+        this.#commentsModel.deleteComment(updateType, update);
+        break;
+    }
   };
 }
 
