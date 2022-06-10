@@ -1,6 +1,7 @@
 import { UpdateType, UserAction } from '../../const.js';
 import { generateComment} from '../../utils/movie.js';
 import AbstractStatefulView from '../../framework/view/abstract-stateful-view.js';
+import { nanoid } from 'nanoid';
 
 const POPUP_NEW_COMMENT_INPUT_CLASS_SELECTOR = '.film-details__comment-input';
 const POPUP_EMOJI_LIST_ITEM_CLASS_SELECTOR = '.film-details__emoji-item';
@@ -20,7 +21,7 @@ const createMoviePopupNewCommentTemplate = (data) => {
  <label class="film-details__comment-label">
    ${newCommentText
       ? `<textarea class='film-details__comment-input' name='comment'>${newCommentText}</textarea>`
-      : '<textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment" disabled></textarea>'
+      : '<textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment"></textarea>'
     }
  </label>
 
@@ -82,9 +83,9 @@ export default class MoviePopupNewCommentView extends AbstractStatefulView {
     const newCommentEmoji = this._state.newCommentEmoji;
 
     if ((commentText && newCommentEmoji) && (evt.code === 'Enter' && (evt.ctrlKey || evt.metaKey))) {
-      const newComment = generateComment(commentText, new Date(), this._state.newCommentEmoji);
+      const newComment = generateComment(nanoid(), 'User', commentText, new Date(), this._state.newCommentEmoji);
       evt.preventDefault();
-      this.#handleCommentAction(UserAction.ADD_COMMENT, UpdateType.INIT, newComment);
+      this.#handleCommentAction(UserAction.ADD_COMMENT, UpdateType.MINOR, newComment);
     }
   };
 

@@ -23,6 +23,8 @@ export default class MoviePopupPresenter {
 
   #scrollPosition = null;
 
+  #commentPresenters = new Map();
+
   constructor (commentsModel, handlePopupClose, handleMovieUserDataUpdate) {
     this.#commentsModel = commentsModel;
     this.#handlePopupClose = handlePopupClose;
@@ -42,7 +44,7 @@ export default class MoviePopupPresenter {
     this.#renderPopupForm();
     this.#renderPopupTopContainer();
     this.#renderPopupBottomContainer();
-    this.#renderComments();
+    this.#renderComments(this.#commentsModel.comments);
     this.#renderNewCommentForm();
 
     this.#popupTopContainerComponent.setCloseButtonClickHandler(this.#handlePopupClose);
@@ -70,22 +72,28 @@ export default class MoviePopupPresenter {
     }
   };
 
+  destroy = () => remove(this.#popupSectionComponent);
+
   #renderPopupForm = () => render(this.#popupFormComponent, this.#popupSectionComponent.element);
 
   #renderComment = (comment) => {
     const commentPresenter = new MoviePopupCommentPresenter(this.#popupBottomContainerComponent, this.#handleCommentAction);
     commentPresenter.init(comment);
+    this.#commentPresenters.set(comment.id, commentPresenter);
   };
 
   #renderPopupTopContainer = () => render(this.#popupTopContainerComponent, this.#popupFormComponent.element);
 
   #renderPopupBottomContainer = () => render(this.#popupBottomContainerComponent, this.#popupFormComponent.element);
 
-  #renderComments = () => this.#commentsModel.comments.forEach(this.#renderComment);
+  #renderComments = (comments) => comments.forEach(this.#renderComment);
 
   #renderNewCommentForm = () => render(this.#popupNewCommentForm, this.#popupBottomContainerComponent.element);
 
-  destroy = () => remove(this.#popupSectionComponent);
+  #clearComments = () => {
+    this.#commentPresenters.forEach((presenter) => presenter.destroy());
+    this.#commentPresenters.clear();
+  };
 
   #popupEscKeydownHandler = (evt) => {
     if (evt.key === 'Escape' || evt.key === 'Esc') {

@@ -1,6 +1,6 @@
 import { MOVIE_POPUP_CONTROLS_ACTIVE_CLASS} from '../../const.js';
 import { createTemplatesFromArray, humanizeReleaseDate, humanizeRuntime, setUserListButtonActiveClass } from '../../utils/movie.js';
-import AbstractStatefulView from '../../framework/view/abstract-stateful-view.js';
+import AbstractView from '../../framework/view/abstract-stateful-view.js';
 
 const SINGLE_GENRE = 1;
 
@@ -11,8 +11,8 @@ const POPUP_FAVORITE_BUTTON_CLASS_SELECTOR = '.film-details__control-button--fav
 
 const createGenreTemplate = (movieGenre) => `<span class="film-details__genre">${movieGenre}</span>`;
 
-const createMoviePopupTopSectionTemplate = (data) => {
-  const {filmInfo, userDetails} = data;
+const createMoviePopupTopSectionTemplate = (movie) => {
+  const {filmInfo, userDetails} = movie;
   const {title, poster, ageRating, totalRating, director, writers, actors, release, runtime, genre, description} = filmInfo;
   const {watchlist, alreadyWatched, favorite} = userDetails;
 
@@ -91,16 +91,16 @@ const createMoviePopupTopSectionTemplate = (data) => {
 `);
 };
 
-export default class MoviePopupTopContainerView extends AbstractStatefulView {
-  _state = null;
+export default class MoviePopupTopContainerView extends AbstractView {
+  #movie = null;
 
-  constructor(movie, commentsModel) {
+  constructor(movie) {
     super();
-    this._state = MoviePopupTopContainerView.parseDataToState(movie, commentsModel);
+    this.#movie = movie;
   }
 
   get template() {
-    return createMoviePopupTopSectionTemplate(this._state);
+    return createMoviePopupTopSectionTemplate(this.#movie);
   }
 
   _restoreHandlers = () => {
@@ -150,15 +150,4 @@ export default class MoviePopupTopContainerView extends AbstractStatefulView {
     evt.preventDefault();
     this._callback.favoriteClick();
   };
-
-  static parseDataToState = (movie, commentsModel, handleModelEvent, comments) => ({
-    ...movie,
-    comments,
-    commentsModel,
-    handleModelEvent,
-    newCommentEmoji: null,
-    newCommentText: null
-  });
-
-  static parseCommentToState = (comment) => this._state.comments.push(comment);
 }
