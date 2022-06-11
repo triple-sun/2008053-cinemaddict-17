@@ -42,7 +42,13 @@ const UpdateType = {
 };
 
 const ErrorType = {
-  COMMENTS_ERROR: 'COMMENTS_ERROR'
+  COMMENTS_ERROR: 'COMMENTS_ERROR',
+  MOVIE_ERROR: 'MOVIE_ERROR'
+};
+
+const TimeLimit = {
+  LOWER_LIMIT: 350,
+  UPPER_LIMIT: 1000,
 };
 
 export {
@@ -60,5 +66,6 @@ export {
   SortType,
   UserAction,
   UpdateType,
-  ErrorType
+  ErrorType,
+  TimeLimit
 };

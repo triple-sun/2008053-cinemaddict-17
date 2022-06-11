@@ -6,12 +6,13 @@ import MoviesListContainerView from '../view/movies/movies-list-container-view.j
 import MoviesListEmptyView from '../view/movies/movies-list-empty-view.js';
 import MovieCardPresenter from './movie-card-presenter.js';
 import MoviesListLoadingView from '../view/movies/movies-list-loading-view.js';
-import { CARDS_PER_STEP, FilterType, pageFooterSection, pageHeaderSection, pageMainSection, SortType, UpdateType } from '../const.js';
+import { CARDS_PER_STEP, FilterType, pageFooterSection, pageHeaderSection, pageMainSection, SortType, TimeLimit, UpdateType } from '../const.js';
 import { remove, render, RenderPosition } from '../framework/render.js';
 import { filter } from '../utils/filter.js';
 import { sortFilmsByDateDown, sortFilmsByDefault, sortFilmsByRatingDown } from '../utils/movie.js';
 import MovieStatsView from '../view/movies/movie-stats-view.js';
 import UserTitleView from '../view/user-title-view.js';
+import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
 
 const movieStatisticsSection = pageFooterSection.querySelector('.footer__statistics');
 
@@ -37,6 +38,8 @@ export default class MoviesSectionPresenter {
   #moviesSectionComponent = new MoviesSectionView();
   #moviesListSectionComponent = new MoviesListSectionView();
   #moviesListContainerComponent = new MoviesListContainerView();
+
+  #uiBlocker = new UiBlocker(TimeLimit.LOWER_LIMIT, TimeLimit.UPPER_LIMIT);
 
   constructor(moviesModel, filterModel, commentsModel) {
     this.#moviesModel = moviesModel;
@@ -88,12 +91,11 @@ export default class MoviesSectionPresenter {
   #renderMovieCard = (movie) => {
     const movieCardPresenter = new MovieCardPresenter(
       this.#moviesListContainerComponent.element,
-      this.#handleMovieUserDataUpdate,
       this.#handleModelEvent,
-      this.#hidePopup,
       this.#moviesModel,
       this.#commentsModel,
-      this.#movieCardPresenters
+      this.#movieCardPresenters,
+      this.#uiBlocker
     );
 
     movieCardPresenter.init(movie);
@@ -199,13 +201,9 @@ export default class MoviesSectionPresenter {
 
   };
 
-  #handleMovieUserDataUpdate = (updateType, update) => this.#moviesModel.updateMovie(updateType, update);
-
   #handleModelEvent = (updateType, data) => {
+    this.#uiBlocker.block();
     switch (updateType) {
-      case UpdateType.PATCH:
-        this.#movieCardPresenters.get(data.id).init(data);
-        break;
       case UpdateType.MINOR:
         this.#movieCardPresenters.get(data.id).init(data);
         this.#clearMovieCardsList();
@@ -221,6 +219,7 @@ export default class MoviesSectionPresenter {
         this.#renderMovieCardsBoard();
         break;
     }
+    this.#uiBlocker.unblock();
   };
 
   #handleSortTypeChange = (sortType) => {
@@ -230,6 +229,4 @@ export default class MoviesSectionPresenter {
       this.#renderMovieCardsBoard();
     }
   };
-
-  #hidePopup = () => this.#movieCardPresenters.forEach((presenter) => presenter.hidePopup());
 }

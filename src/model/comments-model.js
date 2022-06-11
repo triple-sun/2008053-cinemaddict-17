@@ -1,6 +1,6 @@
 import Observable from '../framework/observable.js';
 import { ErrorType, UpdateType } from '../const.js';
-import { snakeCaseKeysToCamelCase } from '../utils/common.js';
+import { findItemIndex, snakeCaseKeysToCamelCase } from '../utils/common.js';
 
 export default class CommentsModel extends Observable {
   #moviesApiService = null;
@@ -36,11 +36,11 @@ export default class CommentsModel extends Observable {
     }
   };
 
-  deleteComment = async (updateType, commentID) => {
-    const index = this.#movie.comments.findIndex((comment) => comment === commentID);
+  deleteComment = async (updateType, comment) => {
+    const index = findItemIndex(this.#movie.comments, comment.id);
 
     try {
-      await this.#moviesApiService.deleteComment(commentID);
+      await this.#moviesApiService.deleteComment(comment);
       this.#comments = [
         ...this.#comments.slice(0, index),
         ...this.#comments.slice(index + 1),

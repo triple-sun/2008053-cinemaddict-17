@@ -1,4 +1,4 @@
-import AbstractView from '../../framework/view/abstract-stateful-view.js';
+import AbstractView from '../../../framework/view/abstract-stateful-view.js';
 
 const createMoviePopupSectionTemplate = () => ('<section class="film-details"></section>');
 
