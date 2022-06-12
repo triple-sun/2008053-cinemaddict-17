@@ -39,11 +39,11 @@ const UpdateType = {
   MINOR: 'MINOR',
   MAJOR: 'MAJOR',
   INIT: 'INIT',
+  FAIL: 'FAIL',
 };
 
 const ErrorType = {
   COMMENTS_ERROR: 'COMMENTS_ERROR',
-  MOVIE_ERROR: 'MOVIE_ERROR'
 };
 
 const TimeLimit = {
