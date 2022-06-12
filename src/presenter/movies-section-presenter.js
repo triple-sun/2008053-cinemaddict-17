@@ -6,18 +6,18 @@ import MoviesListContainerView from '../view/movies/movies-list-container-view.j
 import MoviesListEmptyView from '../view/movies/movies-list-empty-view.js';
 import MovieCardPresenter from './movie-card-presenter.js';
 import MoviesListLoadingView from '../view/movies/movies-list-loading-view.js';
-import { CARDS_PER_STEP, FilterType, pageHeaderSection, SortType, UpdateType } from '../const.js';
-import { remove, render, RenderPosition } from '../framework/render.js';
+import { CARDS_PER_STEP, FilterType, pageFooterSection, pageHeaderSection, pageMainSection, SortType, TimeLimit, UpdateType } from '../const.js';
+import { remove, render, RenderPosition, replace } from '../framework/render.js';
 import { filter } from '../utils/filter.js';
 import { sortFilmsByDateDown, sortFilmsByDefault, sortFilmsByRatingDown } from '../utils/movie.js';
-import MoviesListTotalView from '../view/movies/movies-list-total-view.js';
+import MovieStatsView from '../view/movies/movie-stats-view.js';
 import UserTitleView from '../view/user-title-view.js';
+import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
+import MoviesListLoadingFailView from '../view/movies/movies-list-fail-view.js';
 
-const pageFooter = document.querySelector('footer');
-const movieStatisticsSection = pageFooter.querySelector('.footer__statistics');
+const movieStatisticsSection = pageFooterSection.querySelector('.footer__statistics');
 
 export default class MoviesSectionPresenter {
-  #pageMainSection = null;
   #filterModel = null;
   #moviesModel = null;
   #commentsModel = null;
@@ -25,22 +25,25 @@ export default class MoviesSectionPresenter {
   #sortComponent = null;
   #moviesListEmptyComponent = null;
   #showMoreButtonComponent = null;
-  #moviesListStatisticsComponent = null;
+  #movieStatsComponent = null;
   #userTitleComponent = null;
 
-  #currentSortType = SortType.DEFAULT;
   #isLoading = true;
+  #currentSortType = SortType.DEFAULT;
 
+  #pageMainSection = pageMainSection;
   #renderedMovieCardCount = CARDS_PER_STEP;
   #movieCardPresenters = new Map();
 
-  #loadingComponent = new MoviesListLoadingView();
   #moviesSectionComponent = new MoviesSectionView();
   #moviesListSectionComponent = new MoviesListSectionView();
   #moviesListContainerComponent = new MoviesListContainerView();
+  #moviesListLoadingComponent = new MoviesListLoadingView();
+  #moviesListLoadingFailComponent = new MoviesListLoadingFailView();
 
-  constructor(pageMainSection, moviesModel, filterModel, commentsModel) {
-    this.#pageMainSection = pageMainSection;
+  #uiBlocker = new UiBlocker(TimeLimit.LOWER_LIMIT, TimeLimit.UPPER_LIMIT);
+
+  constructor(moviesModel, filterModel, commentsModel) {
     this.#moviesModel = moviesModel;
     this.#filterModel = filterModel;
     this.#commentsModel = commentsModel;
@@ -90,12 +93,11 @@ export default class MoviesSectionPresenter {
   #renderMovieCard = (movie) => {
     const movieCardPresenter = new MovieCardPresenter(
       this.#moviesListContainerComponent.element,
-      this.#handleMovieUserDataUpdate,
       this.#handleModelEvent,
-      this.#hidePopup,
       this.#moviesModel,
       this.#commentsModel,
-      this.#movieCardPresenters
+      this.#movieCardPresenters,
+      this.#uiBlocker
     );
 
     movieCardPresenter.init(movie);
@@ -104,9 +106,7 @@ export default class MoviesSectionPresenter {
 
   #renderMovieCards = (movies) => movies.forEach(this.#renderMovieCard);
 
-  #renderLoading = () => {
-    render(this.#loadingComponent, this.#moviesListSectionComponent.element, RenderPosition.AFTERBEGIN);
-  };
+  #renderLoading = () => render(this.#moviesListLoadingComponent, this.#moviesListSectionComponent.element, RenderPosition.AFTERBEGIN);
 
   #renderMoviesListEmpty = () => {
     this.#moviesListEmptyComponent = new MoviesListEmptyView(this.#filterModel.filter);
@@ -129,7 +129,7 @@ export default class MoviesSectionPresenter {
     remove(this.#sortComponent);
     remove(this.#userTitleComponent);
     remove(this.#showMoreButtonComponent);
-    remove(this.#moviesListStatisticsComponent);
+    remove(this.#movieStatsComponent);
 
     if (this.#moviesListEmptyComponent) {
       remove(this.#moviesListEmptyComponent);
@@ -178,12 +178,12 @@ export default class MoviesSectionPresenter {
       this.#renderMoviesListEmpty();
     }
 
-    this.#renderMoviesTotal(totalMovieCount);
+    this.#renderMovieStats(totalMovieCount);
   };
 
-  #renderMoviesTotal = (count) => {
-    this.#moviesListStatisticsComponent = new MoviesListTotalView(count);
-    render(this.#moviesListStatisticsComponent, movieStatisticsSection);
+  #renderMovieStats = (count) => {
+    this.#movieStatsComponent = new MovieStatsView(count);
+    render(this.#movieStatsComponent, movieStatisticsSection);
   };
 
 
@@ -201,13 +201,9 @@ export default class MoviesSectionPresenter {
 
   };
 
-  #handleMovieUserDataUpdate = (updateType, update) => this.#moviesModel.updateMovie(updateType, update);
-
   #handleModelEvent = (updateType, data) => {
+    this.#uiBlocker.block();
     switch (updateType) {
-      case UpdateType.PATCH:
-        this.#movieCardPresenters.get(data.id).init(data);
-        break;
       case UpdateType.MINOR:
         this.#movieCardPresenters.get(data.id).init(data);
         this.#clearMovieCardsList();
@@ -219,10 +215,13 @@ export default class MoviesSectionPresenter {
         break;
       case UpdateType.INIT:
         this.#isLoading = false;
-        remove(this.#loadingComponent);
+        remove(this.#moviesListLoadingComponent);
         this.#renderMovieCardsBoard();
         break;
+      case UpdateType.FAIL:
+        replace(this.#moviesListLoadingFailComponent, this.#moviesListLoadingComponent);
     }
+    this.#uiBlocker.unblock();
   };
 
   #handleSortTypeChange = (sortType) => {
@@ -232,6 +231,4 @@ export default class MoviesSectionPresenter {
       this.#renderMovieCardsBoard();
     }
   };
-
-  #hidePopup = () => this.#movieCardPresenters.forEach((presenter) => presenter.hidePopup());
 }

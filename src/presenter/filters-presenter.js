@@ -1,17 +1,17 @@
 import FiltersView from '../view/filters-view.js';
 import { remove, render, replace } from '../framework/render.js';
-import { FilterType, UpdateType } from '../const.js';
+import { FilterType, pageMainSection, UpdateType } from '../const.js';
 import { filter } from '../utils/filter.js';
 
 export default class MoviesFiltersPresenter {
-  #pageMainSection = null;
   #moviesModel = null;
   #filterModel = null;
 
   #filterComponent = null;
 
-  constructor(pageMainSection, moviesModel, filterModel) {
-    this.#pageMainSection = pageMainSection;
+  #pageMainSection = pageMainSection;
+
+  constructor(moviesModel, filterModel) {
     this.#moviesModel = moviesModel;
     this.#filterModel = filterModel;
 

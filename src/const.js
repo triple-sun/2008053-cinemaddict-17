@@ -9,10 +9,10 @@ const DOCUMENT_NO_SCROLL_CLASS = 'hide-overflow';
 const AUTHORIZATION = `Basic ${nanoid(16)}`;
 const END_POINT = 'https://17.ecmascript.pages.academy/cinemaddict';
 
-const pageBody = document.body;
-const pageHeaderSection = pageBody.querySelector('.header');
-const pageMainSection = pageBody.querySelector('.main');
-const pageFooterSection = pageBody.querySelector('.footer');
+const pageBody = document.querySelector('body');
+const pageHeaderSection = pageBody.querySelector('header');
+const pageMainSection = pageBody.querySelector('main');
+const pageFooterSection = pageBody.querySelector('footer');
 
 const FilterType = {
   ALL: 'all',
@@ -39,10 +39,16 @@ const UpdateType = {
   MINOR: 'MINOR',
   MAJOR: 'MAJOR',
   INIT: 'INIT',
+  FAIL: 'FAIL',
 };
 
 const ErrorType = {
-  COMMENTS_ERROR: 'COMMENTS_ERROR'
+  COMMENTS_ERROR: 'COMMENTS_ERROR',
+};
+
+const TimeLimit = {
+  LOWER_LIMIT: 350,
+  UPPER_LIMIT: 1000,
 };
 
 export {
@@ -60,5 +66,6 @@ export {
   SortType,
   UserAction,
   UpdateType,
-  ErrorType
+  ErrorType,
+  TimeLimit
 };
