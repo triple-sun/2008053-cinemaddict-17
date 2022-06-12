@@ -115,6 +115,8 @@ export default class MoviePopupPresenter {
 
   setPopupMovieUpdateAborting = () => this.#popupTopContainerComponent.shake();
 
+  scrollCommentsIntoView = () => this.#popupCommentsSectionComponent.element.scrollIntoView();
+
   #setNewCommentFormAdding = () => this.#popupNewCommentInputComponent.updateElement({newCommentEmoji: null, newCommentText: null, isDisabled: true});
 
   #setNewCommentFormAborting = () => {

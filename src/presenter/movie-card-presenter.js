@@ -118,6 +118,7 @@ export default class MovieCardPresenter {
         this.#movieCardPresenters.get(data.id).init(data);
         this.#popupPresenter.init(data);
         this.#popupPresenter.setPopupCommentsLoaded();
+        this.#popupPresenter.scrollCommentsIntoView();
         break;
       case UpdateType.INIT:
         this.#popupPresenter.init(data);
