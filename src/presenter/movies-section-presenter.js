@@ -204,6 +204,11 @@ export default class MoviesSectionPresenter {
   #handleModelEvent = (updateType, data) => {
     this.#uiBlocker.block();
     switch (updateType) {
+      case UpdateType.PATCH:
+        this.#movieCardPresenters.get(data.id).init(data);
+        this.#clearMovieCardsList();
+        this.#renderMovieCardsBoard();
+        break;
       case UpdateType.MINOR:
         this.#movieCardPresenters.get(data.id).init(data);
         this.#clearMovieCardsList();

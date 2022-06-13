@@ -111,14 +111,10 @@ export default class MovieCardPresenter {
   #handlePopupModelEvent = (updateType, data) => {
     this.#uiBlocker.block();
     switch (updateType) {
-      case UpdateType.PATCH:
-        this.#popupPresenter.init(this.#movie);
-        break;
       case UpdateType.MINOR:
         this.#movieCardPresenters.get(data.id).init(data);
         this.#popupPresenter.init(data);
         this.#popupPresenter.setPopupCommentsLoaded();
-        this.#popupPresenter.scrollCommentsIntoView();
         break;
       case UpdateType.INIT:
         this.#popupPresenter.init(data);

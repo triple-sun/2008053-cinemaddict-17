@@ -14,11 +14,22 @@ const pageHeaderSection = pageBody.querySelector('header');
 const pageMainSection = pageBody.querySelector('main');
 const pageFooterSection = pageBody.querySelector('footer');
 
+const FilterName = {
+  ALL: 'All Movies',
+  WATCHLIST: 'Watchlist',
+  HISTORY: 'History',
+  FAVORITES: 'Favorites',
+  TOP_RATED: 'Top Rated',
+  MOST_COMMENTED: 'Most Commented',
+};
+
 const FilterType = {
   ALL: 'all',
   WATCHLIST: 'watchlist',
   HISTORY: 'history',
-  FAVORITES: 'favorites'
+  FAVORITES: 'favorites',
+  TOP_RATED: 'top-rated',
+  MOST_COMMENTED: 'most-commented',
 };
 
 const SortType = {
@@ -26,12 +37,12 @@ const SortType = {
   DATE: 'date',
   DATE_DOWN: 'date-down',
   RATING: 'rating',
-  RATING_DOWN: 'rating-down'
+  RATING_DOWN: 'rating-down',
 };
 
 const UserAction = {
   ADD_COMMENT: 'ADD_COMMENT',
-  DELETE_COMMENT: 'DELETE_COMMENT'
+  DELETE_COMMENT: 'DELETE_COMMENT',
 };
 
 const UpdateType = {
@@ -40,10 +51,6 @@ const UpdateType = {
   MAJOR: 'MAJOR',
   INIT: 'INIT',
   FAIL: 'FAIL',
-};
-
-const ErrorType = {
-  COMMENTS_ERROR: 'COMMENTS_ERROR',
 };
 
 const TimeLimit = {
@@ -62,10 +69,10 @@ export {
   pageHeaderSection,
   pageMainSection,
   pageFooterSection,
+  FilterName,
   FilterType,
   SortType,
   UserAction,
   UpdateType,
-  ErrorType,
   TimeLimit
 };

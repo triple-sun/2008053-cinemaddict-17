@@ -42,14 +42,11 @@ const sortFilmsByRatingDown = (filmA, filmB) => {
   return weight ?? filmB.filmInfo.totalRating - filmA.filmInfo.totalRating;
 };
 
-const generateComment = (id, author, comment, date, emotion) => ({
-  id: id,
-  author: author,
-  comment: comment,
-  date: date,
-  emotion: emotion
-});
+const sortMoviesByCommentsCount = (filmA, filmB) => {
+  const weight = getWeightForNullArrayElement(filmA.comments.length, filmB.comments.length);
 
+  return weight ?? filmB.comments.length - filmA.comments.length;
+};
 
 export {
   getReleaseYear,
@@ -61,5 +58,5 @@ export {
   sortFilmsByDefault,
   sortFilmsByDateDown,
   sortFilmsByRatingDown,
-  generateComment
+  sortMoviesByCommentsCount,
 };

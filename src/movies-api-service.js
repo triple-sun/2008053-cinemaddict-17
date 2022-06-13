@@ -53,7 +53,6 @@ export default class MoviesApiService extends ApiService {
       url: `${COMMENTS_URL}/${comment.id}`,
       method: Method.DELETE,
     });
-
     return response;
   };
 

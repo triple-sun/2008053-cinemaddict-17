@@ -1,11 +1,12 @@
 import Observable from '../framework/observable.js';
-import { ErrorType, UpdateType } from '../const.js';
+import { UpdateType } from '../const.js';
 import { findItemIndex, snakeCaseKeysToCamelCase } from '../utils/common.js';
 
 export default class CommentsModel extends Observable {
   #moviesApiService = null;
   #movie = null;
   #comments = [];
+  #failedToLoadComments = false;
 
   constructor(moviesApiService) {
     super();
@@ -16,12 +17,17 @@ export default class CommentsModel extends Observable {
     return this.#comments;
   }
 
+  get hadFailed() {
+    return this.#failedToLoadComments;
+  }
+
   init = async (movie) => {
     this.#movie = movie;
     try {
       this.#comments = await this.#moviesApiService.getComments(movie);
-    } catch(err) {
-      this.#comments = ErrorType.COMMENTS_ERROR;
+    } catch (err) {
+      this.#comments = [];
+      this.#failedToLoadComments = true;
     }
     this._notify(UpdateType.INIT, this.#movie);
   };
@@ -31,7 +37,7 @@ export default class CommentsModel extends Observable {
       const response = await this.#moviesApiService.addComment(this.#movie, comment);
       this.#comments = [...this.#adaptToClient(response).comments];
       this._notify(updateType, this.#adaptToClient(response).movie);
-    } catch(err) {
+    } catch (err) {
       throw new Error('Can\'t add comment');
     }
   };
@@ -46,7 +52,7 @@ export default class CommentsModel extends Observable {
         ...this.#comments.slice(index + 1),
       ];
       this._notify(updateType, this.#movie);
-    } catch(err) {
+    } catch (err) {
       throw new Error('Can\'t delete comment');
     }
   };

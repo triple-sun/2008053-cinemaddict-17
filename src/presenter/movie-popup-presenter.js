@@ -1,6 +1,5 @@
 import { remove, render, RenderPosition, replace } from '../framework/render.js';
 import { DOCUMENT_NO_SCROLL_CLASS, pageBody, pageFooterSection, UpdateType, UserAction } from '../const.js';
-import { findItemIndex } from '../utils/common.js';
 import MoviePopupCommentPresenter from './movie-popup-comment-presenter.js';
 import MoviePopupSectionView from '../view/movies/movie-popup/movie-popup-section-view.js';
 import MoviePopupTopContainerView from '../view/movies/movie-popup/movie-popup-top-container-view.js';
@@ -63,8 +62,8 @@ export default class MoviePopupPresenter {
     this.#popupMovieInfoComponent = new MoviePopupInfoView(this.#movie);
     this.#popupControlsComponent = new MoviePopupControlsView(this.#movie);
 
-    this.#popupNewCommentInputComponent = new MoviePopupNewCommentView(this.#commentsModel);
-    this.#popupCommentsCountComponent = new MoviePopupCommentsCountView(this.#commentsModel.comments);
+    this.#popupNewCommentInputComponent = new MoviePopupNewCommentView(this.#commentsModel, this.#handleCommentAction);
+    this.#popupCommentsCountComponent = new MoviePopupCommentsCountView(this.#commentsModel.comments, this.#commentsModel.hadFailed);
 
     this.#renderPopupForm();
 
@@ -115,9 +114,11 @@ export default class MoviePopupPresenter {
 
   setPopupMovieUpdateAborting = () => this.#popupTopContainerComponent.shake();
 
-  scrollCommentsIntoView = () => this.#popupCommentsSectionComponent.element.scrollIntoView();
+  #scrollCommentsIntoView = () => this.#popupCommentsSectionComponent.element.scrollIntoView();
 
-  #setNewCommentFormAdding = () => this.#popupNewCommentInputComponent.updateElement({newCommentEmoji: null, newCommentText: null, isDisabled: true});
+  #setNewCommentFormAdding = () => this.#popupNewCommentInputComponent.updateElement({isDisabled: true});
+
+  #resetNewCommentForm = () => this.#popupNewCommentInputComponent.updateElement({emotion: null, comment: null});
 
   #setNewCommentFormAborting = () => {
     const resetNewCommentFormState = () => this.#popupNewCommentInputComponent.updateElement({isDisabled: false});
@@ -201,35 +202,10 @@ export default class MoviePopupPresenter {
     );
   };
 
-  #handleCommentAction = (actionType, updateType, update) => {
-    switch (actionType) {
-      case UserAction.ADD_COMMENT:
-        try {
-          this.setNewCommentFormAdding();
-          this.#commentsModel.addComment(updateType, update);
-        } catch (err) {
-          this.#setNewCommentFormAborting();
-        }
-        break;
-      case UserAction.DELETE_COMMENT:
-        try {
-          this.#commentPresenters.get(update.id).setDeleting(update);
-          this.#commentsModel.deleteComment(updateType, update);
-        } catch(err) {
-          this.#commentPresenters.get(update.id).setAborting();
-        }
-        break;
-    }
-  };
+  #handleMovieCommentDelete = () => {
+    this.#scrollPosition = this.#popupComponent.element.scrollTop;
 
-  #handleMovieCommentDelete = (comment) => {
-    const index = findItemIndex(this.#movie.comments, comment);
-
-    const updatedComments = [
-      ...this.#movie.comments.slice(0, index),
-      ...this.#movie.comments.slice(index + 1),
-    ];
-
+    const updatedComments = this.#commentsModel.comments.map((comment) => comment.id);
     this.#handleMovieUserDataUpdate(
       UpdateType.MINOR,
       {
@@ -237,6 +213,33 @@ export default class MoviePopupPresenter {
         comments: updatedComments
       }
     );
+  };
+
+  #handleCommentAction = async (actionType, updateType, update) => {
+    const newCommentValues = this.#popupNewCommentInputComponent.newCommentInputValues;
+
+    switch (actionType) {
+      case UserAction.ADD_COMMENT:
+        this.#setNewCommentFormAdding();
+        try {
+          await this.#commentsModel.addComment(updateType, update);
+          this.#resetNewCommentForm();
+          this.#scrollCommentsIntoView();
+        } catch (err) {
+          this.#setNewCommentFormAborting();
+        }
+        break;
+      case UserAction.DELETE_COMMENT:
+        this.#commentPresenters.get(update.id).setDeleting(update);
+        try {
+          await this.#commentsModel.deleteComment(updateType, update);
+          this.#handleMovieCommentDelete(update);
+          this.#popupNewCommentInputComponent.newCommentInputValues = newCommentValues;
+        } catch (err) {
+          this.#commentPresenters.get(update.id).setAborting();
+        }
+        break;
+    }
   };
 }
 
