@@ -17,6 +17,7 @@ export default class MovieCardPresenter {
   #moviesModel = null;
   #commentsModel = null;
   #movieCardPresenters = null;
+  #movieCardExtraPresenters = null;
   #uiBlocker = null;
 
   #isPopupOpen = false;
@@ -112,6 +113,9 @@ export default class MovieCardPresenter {
     this.#uiBlocker.block();
     switch (updateType) {
       case UpdateType.MINOR:
+        if (this.#movieCardExtraPresenters.get(data.id)) {
+          this.#movieCardExtraPresenters.get(data.id).init(data);
+        }
         this.#movieCardPresenters.get(data.id).init(data);
         this.#popupPresenter.init(data);
         this.#popupPresenter.setPopupCommentsLoaded();

@@ -2,7 +2,7 @@ import dayjs from 'dayjs';
 import { humanizeCommentDateTime } from './movie';
 
 //https://stackoverflow.com/a/59769834
-const toCamel = (str) => str
+const convertStringToCamelCase = (str) => str
   .replace(
     /([-_][a-z])/ig, ($1) => $1
       .toUpperCase()
@@ -10,43 +10,43 @@ const toCamel = (str) => str
       .replace('_', '')
   );
 
-const toSnake = (str) => str
+const convertStringToSnakeCase = (str) => str
   .replace(
     /([A-Z])/g, ($1)=> `_${$1
       .toLowerCase()}`
   );
 
-const isObject = (obj) => obj === Object(obj) && !Array.isArray(obj) && typeof obj !== 'function';
+const checkIfIsObject = (obj) => obj === Object(obj) && !Array.isArray(obj) && typeof obj !== 'function';
 
-const snakeCaseKeysToCamelCase = (obj) => {
-  if (isObject(obj)) {
+const convertSnakeCaseKeysToCamelCase = (obj) => {
+  if (checkIfIsObject(obj)) {
     const n = {};
 
     Object.keys(obj)
       .forEach((k) => {
-        n[toCamel(k)] = snakeCaseKeysToCamelCase(obj[k]);
+        n[convertStringToCamelCase(k)] = convertSnakeCaseKeysToCamelCase(obj[k]);
       });
 
     return n;
   } else if (Array.isArray(obj)) {
-    return obj.map((i) => snakeCaseKeysToCamelCase(i));
+    return obj.map((i) => convertSnakeCaseKeysToCamelCase(i));
   }
 
   return obj;
 };
 
-const camelCaseKeysToSnakeCase = (obj) => {
-  if (isObject(obj)) {
+const convertCamelCaseKeysToSnakeCase = (obj) => {
+  if (checkIfIsObject(obj)) {
     const n = {};
 
     Object.keys(obj)
       .forEach((k) => {
-        n[toSnake(k)] = camelCaseKeysToSnakeCase(obj[k]);
+        n[convertStringToSnakeCase(k)] = convertCamelCaseKeysToSnakeCase(obj[k]);
       });
 
     return n;
   } else if (Array.isArray(obj)) {
-    return obj.map((i) => camelCaseKeysToSnakeCase(i));
+    return obj.map((i) => convertCamelCaseKeysToSnakeCase(i));
   }
 
   return obj;
@@ -102,8 +102,8 @@ const humanizeCommentDate = (date) => {
 const findItemIndex = (arr, itemToFind) => arr.findIndex((item) => item === itemToFind);
 
 export {
-  snakeCaseKeysToCamelCase,
-  camelCaseKeysToSnakeCase,
+  convertSnakeCaseKeysToCamelCase,
+  convertCamelCaseKeysToSnakeCase,
   humanizeCommentDate,
   findItemIndex
 };

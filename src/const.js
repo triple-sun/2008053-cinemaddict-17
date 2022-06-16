@@ -9,18 +9,11 @@ const DOCUMENT_NO_SCROLL_CLASS = 'hide-overflow';
 const AUTHORIZATION = `Basic ${nanoid(16)}`;
 const END_POINT = 'https://17.ecmascript.pages.academy/cinemaddict';
 
-const pageBody = document.querySelector('body');
-const pageHeaderSection = pageBody.querySelector('header');
-const pageMainSection = pageBody.querySelector('main');
-const pageFooterSection = pageBody.querySelector('footer');
-
 const FilterName = {
   ALL: 'All Movies',
   WATCHLIST: 'Watchlist',
   HISTORY: 'History',
   FAVORITES: 'Favorites',
-  TOP_RATED: 'Top Rated',
-  MOST_COMMENTED: 'Most Commented',
 };
 
 const FilterType = {
@@ -28,8 +21,6 @@ const FilterType = {
   WATCHLIST: 'watchlist',
   HISTORY: 'history',
   FAVORITES: 'favorites',
-  TOP_RATED: 'top-rated',
-  MOST_COMMENTED: 'most-commented',
 };
 
 const SortType = {
@@ -58,6 +49,16 @@ const TimeLimit = {
   UPPER_LIMIT: 1000,
 };
 
+const ExtraCategory = {
+  TOP_RATED: 'Top Rated',
+  MOST_COMMENTED: 'Most Commented',
+};
+
+const pageBody = document.querySelector('body');
+const pageHeaderSection = pageBody.querySelector('header');
+const pageMainSection = pageBody.querySelector('main');
+const pageFooterSection = pageBody.querySelector('footer');
+
 export {
   CARDS_PER_STEP,
   MOVIE_CARD_CONTROLS_ACTIVE_CLASS,
@@ -65,14 +66,15 @@ export {
   DOCUMENT_NO_SCROLL_CLASS,
   END_POINT,
   AUTHORIZATION,
-  pageBody,
-  pageHeaderSection,
-  pageMainSection,
-  pageFooterSection,
   FilterName,
   FilterType,
   SortType,
   UserAction,
   UpdateType,
-  TimeLimit
+  TimeLimit,
+  ExtraCategory,
+  pageBody,
+  pageHeaderSection,
+  pageMainSection,
+  pageFooterSection
 };

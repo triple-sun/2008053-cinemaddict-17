@@ -1,6 +1,6 @@
 import Observable from '../framework/observable.js';
 import { UpdateType } from '../const.js';
-import { findItemIndex, snakeCaseKeysToCamelCase } from '../utils/common.js';
+import { convertSnakeCaseKeysToCamelCase, findItemIndex } from '../utils/common.js';
 
 export default class CommentsModel extends Observable {
   #moviesApiService = null;
@@ -57,5 +57,5 @@ export default class CommentsModel extends Observable {
     }
   };
 
-  #adaptToClient = (comment) => snakeCaseKeysToCamelCase(comment);
+  #adaptToClient = (comment) => convertSnakeCaseKeysToCamelCase(comment);
 }

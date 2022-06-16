@@ -29,16 +29,6 @@ export default class MoviesFiltersPresenter {
         count: filter[FilterType.ALL](movies).length,
       },
       {
-        type: FilterType.TOP_RATED,
-        name: FilterName.TOP_RATED,
-        count: filter[FilterType.TOP_RATED](movies).length,
-      },
-      {
-        type: FilterType.MOST_COMMENTED,
-        name: FilterName.MOST_COMMENTED,
-        count: filter[FilterType.MOST_COMMENTED](movies).length,
-      },
-      {
         type: FilterType.WATCHLIST,
         name: FilterName.WATCHLIST,
         count: filter[FilterType.WATCHLIST](movies).length,
