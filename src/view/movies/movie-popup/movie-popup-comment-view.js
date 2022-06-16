@@ -1,6 +1,5 @@
 import he from 'he';
 import { humanizeCommentDate } from '../../../utils/common.js';
-import { UpdateType, UserAction } from '../../../const.js';
 import AbstractStatefulView from '../../../framework/view/abstract-stateful-view.js';
 
 const POPUP_DELETE_COMMENT_BUTTON_CLASS_SELECTOR = '.film-details__comment-delete';
@@ -49,11 +48,6 @@ export default class MoviePopupCommentView extends AbstractStatefulView {
   #deleteButtonClickHandler = (evt) => {
     evt.preventDefault();
     this._callback.deleteClick(MoviePopupCommentView.parseStateToComment(this._state));
-  };
-
-  #deleteCommentClickHandler = (evt) => {
-    evt.preventDefault();
-    this._state.handleCommentAction(UserAction.DELETE_COMMENT, UpdateType.MINOR, evt.target.dataset.commentId);
   };
 
   static parseCommentToState = (comment, handleCommentAction) => ({

@@ -1,6 +1,6 @@
 import Observable from '../framework/observable.js';
 import { UpdateType } from '../const.js';
-import { snakeCaseKeysToCamelCase } from '../utils/common.js';
+import { convertSnakeCaseKeysToCamelCase } from '../utils/common.js';
 
 export default class MoviesModel extends Observable {
   #moviesApiService = null;
@@ -52,6 +52,6 @@ export default class MoviesModel extends Observable {
     }
   };
 
-  #adaptToClient = (movie) => snakeCaseKeysToCamelCase(movie);
+  #adaptToClient = (movie) => convertSnakeCaseKeysToCamelCase(movie);
 }
 

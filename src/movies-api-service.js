@@ -1,5 +1,5 @@
 import ApiService from './framework/api-service.js';
-import { camelCaseKeysToSnakeCase } from './utils/common.js';
+import { convertCamelCaseKeysToSnakeCase } from './utils/common.js';
 
 const MOVIES_URL = 'movies';
 const COMMENTS_URL = 'comments';
@@ -53,9 +53,8 @@ export default class MoviesApiService extends ApiService {
       url: `${COMMENTS_URL}/${comment.id}`,
       method: Method.DELETE,
     });
-
     return response;
   };
 
-  #adaptToServer = (movie) => camelCaseKeysToSnakeCase(movie);
+  #adaptToServer = (movie) => convertCamelCaseKeysToSnakeCase(movie);
 }

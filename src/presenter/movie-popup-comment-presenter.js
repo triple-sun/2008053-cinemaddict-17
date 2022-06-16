@@ -8,12 +8,10 @@ export default class MoviePopupCommentPresenter {
 
   #commentsContainerComponent = null;
   #handleCommentAction = null;
-  #handleMovieCommentDelete = null;
 
-  constructor(commentsContainerComponent, handleCommentAction, handleMovieCommentDelete) {
+  constructor(commentsContainerComponent, handleCommentAction) {
     this.#commentsContainerComponent = commentsContainerComponent;
     this.#handleCommentAction = handleCommentAction;
-    this.#handleMovieCommentDelete = handleMovieCommentDelete;
   }
 
   init = (comment) => {
@@ -36,8 +34,5 @@ export default class MoviePopupCommentPresenter {
 
   #renderComment = () =>  render(this.#moviePopupCommentComponent, this.#commentsContainerComponent.element);
 
-  #handleDeleteButtonClick = (comment) => {
-    this.#handleCommentAction(UserAction.DELETE_COMMENT, UpdateType.MINOR, comment);
-    this.#handleMovieCommentDelete(comment);
-  };
+  #handleDeleteButtonClick = (comment) => this.#handleCommentAction(UserAction.DELETE_COMMENT, UpdateType.MINOR, comment);
 }

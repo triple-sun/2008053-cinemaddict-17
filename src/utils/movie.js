@@ -1,12 +1,22 @@
 import dayjs from 'dayjs';
 
-const getReleaseYear = (releaseDate) => dayjs(releaseDate).format('YYYY');
+const RUNTIME_DIVIDER = 60;
+const RUNTIME_STRING_LENGTH = 2;
+const RUNTIME_REPLACE_SUFFIX = 'h ';
+const RUNTIME_SUFFIX = 'm';
 
-const humanizeReleaseDate = (releaseDate) => dayjs(releaseDate).format('DD MMM YYYY');
+const RELEASE_YEAR_FORMAT = 'YYYY';
+const RELEASE_DATE_FORMAT = 'DD MMMM YYYY';
 
-const humanizeRuntime = (minutes) => `${String((minutes / 60).toFixed(2)).replace(/\./gi, 'h ')  }m`;
+const COMMENT_DATE_FORMAT = 'YYYY/MM/DD HH:mm';
 
-const humanizeCommentDateTime = (date) => dayjs(date).format('YYYY/MM/DD HH:mm');
+const getReleaseYear = (releaseDate) => dayjs(releaseDate).format(RELEASE_YEAR_FORMAT);
+
+const humanizeReleaseDate = (releaseDate) => dayjs(releaseDate).format(RELEASE_DATE_FORMAT);
+
+const humanizeRuntime = (minutes) => `${String((minutes / RUNTIME_DIVIDER).toFixed(RUNTIME_STRING_LENGTH)).replace(/\./gi, RUNTIME_REPLACE_SUFFIX)  }${RUNTIME_SUFFIX}`;
+
+const humanizeCommentDateTime = (date) => dayjs(date).format(COMMENT_DATE_FORMAT);
 
 const setUserListButtonActiveClass = (userList, controlsClass) => userList ? `${controlsClass}` : '';
 
@@ -42,14 +52,11 @@ const sortFilmsByRatingDown = (filmA, filmB) => {
   return weight ?? filmB.filmInfo.totalRating - filmA.filmInfo.totalRating;
 };
 
-const generateComment = (id, author, comment, date, emotion) => ({
-  id: id,
-  author: author,
-  comment: comment,
-  date: date,
-  emotion: emotion
-});
+const sortMoviesByCommentsCount = (filmA, filmB) => {
+  const weight = getWeightForNullArrayElement(filmA.comments.length, filmB.comments.length);
 
+  return weight ?? filmB.comments.length - filmA.comments.length;
+};
 
 export {
   getReleaseYear,
@@ -61,5 +68,5 @@ export {
   sortFilmsByDefault,
   sortFilmsByDateDown,
   sortFilmsByRatingDown,
-  generateComment
+  sortMoviesByCommentsCount,
 };

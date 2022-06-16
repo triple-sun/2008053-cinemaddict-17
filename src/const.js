@@ -9,16 +9,18 @@ const DOCUMENT_NO_SCROLL_CLASS = 'hide-overflow';
 const AUTHORIZATION = `Basic ${nanoid(16)}`;
 const END_POINT = 'https://17.ecmascript.pages.academy/cinemaddict';
 
-const pageBody = document.querySelector('body');
-const pageHeaderSection = pageBody.querySelector('header');
-const pageMainSection = pageBody.querySelector('main');
-const pageFooterSection = pageBody.querySelector('footer');
+const FilterName = {
+  ALL: 'All Movies',
+  WATCHLIST: 'Watchlist',
+  HISTORY: 'History',
+  FAVORITES: 'Favorites',
+};
 
 const FilterType = {
   ALL: 'all',
   WATCHLIST: 'watchlist',
   HISTORY: 'history',
-  FAVORITES: 'favorites'
+  FAVORITES: 'favorites',
 };
 
 const SortType = {
@@ -26,12 +28,12 @@ const SortType = {
   DATE: 'date',
   DATE_DOWN: 'date-down',
   RATING: 'rating',
-  RATING_DOWN: 'rating-down'
+  RATING_DOWN: 'rating-down',
 };
 
 const UserAction = {
   ADD_COMMENT: 'ADD_COMMENT',
-  DELETE_COMMENT: 'DELETE_COMMENT'
+  DELETE_COMMENT: 'DELETE_COMMENT',
 };
 
 const UpdateType = {
@@ -42,14 +44,20 @@ const UpdateType = {
   FAIL: 'FAIL',
 };
 
-const ErrorType = {
-  COMMENTS_ERROR: 'COMMENTS_ERROR',
-};
-
 const TimeLimit = {
   LOWER_LIMIT: 350,
   UPPER_LIMIT: 1000,
 };
+
+const ExtraCategory = {
+  TOP_RATED: 'Top Rated',
+  MOST_COMMENTED: 'Most Commented',
+};
+
+const pageBody = document.querySelector('body');
+const pageHeaderSection = pageBody.querySelector('header');
+const pageMainSection = pageBody.querySelector('main');
+const pageFooterSection = pageBody.querySelector('footer');
 
 export {
   CARDS_PER_STEP,
@@ -58,14 +66,15 @@ export {
   DOCUMENT_NO_SCROLL_CLASS,
   END_POINT,
   AUTHORIZATION,
-  pageBody,
-  pageHeaderSection,
-  pageMainSection,
-  pageFooterSection,
+  FilterName,
   FilterType,
   SortType,
   UserAction,
   UpdateType,
-  ErrorType,
-  TimeLimit
+  TimeLimit,
+  ExtraCategory,
+  pageBody,
+  pageHeaderSection,
+  pageMainSection,
+  pageFooterSection
 };

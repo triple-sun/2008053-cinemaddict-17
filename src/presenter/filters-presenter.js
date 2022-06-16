@@ -1,6 +1,6 @@
 import FiltersView from '../view/filters-view.js';
 import { remove, render, replace } from '../framework/render.js';
-import { FilterType, pageMainSection, UpdateType } from '../const.js';
+import { FilterName, FilterType, pageMainSection, UpdateType } from '../const.js';
 import { filter } from '../utils/filter.js';
 
 export default class MoviesFiltersPresenter {
@@ -25,22 +25,22 @@ export default class MoviesFiltersPresenter {
     return [
       {
         type: FilterType.ALL,
-        name: 'All Movies',
+        name: FilterName.ALL,
         count: filter[FilterType.ALL](movies).length,
       },
       {
         type: FilterType.WATCHLIST,
-        name: 'Watchlist',
+        name: FilterName.WATCHLIST,
         count: filter[FilterType.WATCHLIST](movies).length,
       },
       {
         type: FilterType.HISTORY,
-        name: 'History',
+        name: FilterName.HISTORY,
         count: filter[FilterType.HISTORY](movies).length,
       },
       {
         type: FilterType.FAVORITES,
-        name: 'Favorites',
+        name: FilterName.FAVORITES,
         count: filter[FilterType.FAVORITES](movies).length,
       },
     ];

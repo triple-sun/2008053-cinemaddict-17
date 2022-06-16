@@ -1,26 +1,24 @@
 import { UpdateType, UserAction } from '../../../const.js';
-import { generateComment} from '../../../utils/movie.js';
 import AbstractStatefulView from '../../../framework/view/abstract-stateful-view.js';
-import { nanoid } from 'nanoid';
 
 const POPUP_NEW_COMMENT_INPUT_CLASS_SELECTOR = '.film-details__comment-input';
 const POPUP_EMOJI_LIST_ITEM_CLASS_SELECTOR = '.film-details__emoji-item';
 
 const createMoviePopupNewCommentTemplate = (data) => {
-  const {newCommentEmoji, newCommentText, isDisabled} = data;
+  const {emotion, comment, isDisabled} = data;
 
   return (`
   <div class="film-details__new-comment">
   <div class="film-details__add-emoji-label">
-  ${newCommentEmoji
-      ? `<img src="images/emoji/${newCommentEmoji}.png" width="55" height="55" alt="emoji-${newCommentEmoji}"></img>`
+  ${emotion
+      ? `<img src="images/emoji/${emotion}.png" width="55" height="55" alt="emoji-${emotion}"></img>`
       : ''
     }
 </div>
 
  <label class="film-details__comment-label">
-   ${newCommentText
-      ? `<textarea class='film-details__comment-input' name='comment' ${isDisabled ? 'disabled' : ''}>${newCommentText}</textarea>`
+   ${comment
+      ? `<textarea class='film-details__comment-input' name='comment' ${isDisabled ? 'disabled' : ''}>${comment}</textarea>`
       : `<textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment" ${isDisabled ? 'disabled' : ''}></textarea>`
     }
  </label>
@@ -53,14 +51,22 @@ const createMoviePopupNewCommentTemplate = (data) => {
 export default class MoviePopupNewCommentView extends AbstractStatefulView {
   _state = null;
 
-  constructor(commentsModel) {
+  constructor(commentsModel, handleCommentAction) {
     super();
-    this._state = MoviePopupNewCommentView.parseDataToState(commentsModel);
+    this._state = MoviePopupNewCommentView.parseDataToState(commentsModel, handleCommentAction);
     this.#setInnerHandlers();
   }
 
   get template() {
     return createMoviePopupNewCommentTemplate(this._state);
+  }
+
+  get newCommentInputValues() {
+    return MoviePopupNewCommentView.parseStateToNewComment(this._state);
+  }
+
+  set newCommentInputValues(values) {
+    this.updateElement(values);
   }
 
   _restoreHandlers = () => this.#setInnerHandlers();
@@ -70,32 +76,19 @@ export default class MoviePopupNewCommentView extends AbstractStatefulView {
     const scrollPosition = this.element.scrollTop;
     const emojiName = evt.target.value;
 
-    if (this._state.newCommentEmoji !== emojiName) {
-      this.updateElement({newCommentEmoji: emojiName, newCommentText: commentText});
+    if (this._state.emotion !== emojiName) {
+      this.updateElement({emotion: emojiName, comment: commentText});
       this.element.scrollTop = scrollPosition;
     }
   };
 
   #newCommentSubmitFormHandler = (evt) => {
-    const commentText = this.element.querySelector(POPUP_NEW_COMMENT_INPUT_CLASS_SELECTOR).value;
-    const newCommentEmoji = this._state.newCommentEmoji;
+    this._state.comment = this.element.querySelector(POPUP_NEW_COMMENT_INPUT_CLASS_SELECTOR).value;
 
-    if ((commentText && newCommentEmoji) && (evt.code === 'Enter' && (evt.ctrlKey || evt.metaKey))) {
-      const newComment = generateComment(nanoid(), 'User', commentText, new Date(), this._state.newCommentEmoji);
+    if ((this._state.comment && this._state.emotion) && (evt.code === 'Enter' && (evt.ctrlKey || evt.metaKey))) {
+      const newComment = this.newCommentInputValues;
       evt.preventDefault();
-      this.#handleCommentAction(UserAction.ADD_COMMENT, UpdateType.MINOR, newComment);
-    }
-  };
-
-  #handleCommentAction = (actionType, updateType, update) => {
-    switch (actionType) {
-      case UserAction.ADD_COMMENT:
-        this._state.commentsModel.addComment(updateType, update);
-        this.updateElement({newCommentEmoji: null, newCommentText: null});
-        break;
-      case UserAction.DELETE_COMMENT:
-        this._state.commentsModel.deleteComment(updateType, update);
-        break;
+      this._state.handleCommentAction(UserAction.ADD_COMMENT, UpdateType.MINOR, newComment);
     }
   };
 
@@ -104,10 +97,21 @@ export default class MoviePopupNewCommentView extends AbstractStatefulView {
     this.element.querySelector(POPUP_NEW_COMMENT_INPUT_CLASS_SELECTOR).addEventListener('keydown', this.#newCommentSubmitFormHandler);
   };
 
-  static parseDataToState = (commentsModel) => ({
+  static parseDataToState = (commentsModel, handleCommentAction) => ({
     commentsModel,
-    newCommentEmoji: null,
-    newCommentText: null,
+    handleCommentAction,
+    emotion: null,
+    comment: null,
     isDisabled: null,
   });
+
+  static parseStateToNewComment= (state) => {
+    const newComment = {...state};
+
+    delete newComment.commentsModel;
+    delete newComment.handleCommentAction;
+    delete newComment.isDisabled;
+
+    return newComment;
+  };
 }
