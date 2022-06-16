@@ -54,6 +54,14 @@ const ExtraCategory = {
   MOST_COMMENTED: 'Most Commented',
 };
 
+const TimeUnit = {
+  MINUTE: 'minutes',
+  HOUR: 'hours',
+  DAY: 'days',
+  MONTH: 'months',
+  YEAR: 'years'
+};
+
 const pageBody = document.querySelector('body');
 const pageHeaderSection = pageBody.querySelector('header');
 const pageMainSection = pageBody.querySelector('main');
@@ -73,6 +81,7 @@ export {
   UpdateType,
   TimeLimit,
   ExtraCategory,
+  TimeUnit,
   pageBody,
   pageHeaderSection,
   pageMainSection,

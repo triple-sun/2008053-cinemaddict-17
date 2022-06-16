@@ -1,5 +1,16 @@
 import dayjs from 'dayjs';
+import { TimeUnit } from '../const';
 import { humanizeCommentDateTime } from './movie';
+
+const COMMENT_TIME_NOW = 'Now';
+const COMMENT_TIME_MINUTES_AGO = 'A few minutes ago';
+const COMMENT_TIME_HOURS_AGO = 'A few hours ago';
+const COMMENT_TIME_DAY_AGO = 'A day ago';
+const COMMENT_TIME_DAYS_AGO = 'days ago';
+const COMMENT_TIME_MONTH_AGO = 'A month ago';
+const COMMENT_TIME_MONTHS_AGO = 'months ago';
+const COMMENT_TIME_YEAR_AGO = 'A year ago';
+const COMMENT_TIME_YEARS_AGO = 'years ago';
 
 //https://stackoverflow.com/a/59769834
 const convertStringToCamelCase = (str) => str
@@ -57,42 +68,42 @@ const getDateDifference = (units, date) => dayjs().diff(date, units);
 const humanizeCommentDate = (date) => {
   const commentDate = dayjs(date);
 
-  if (getDateDifference('minutes', commentDate) < 1) {
-    return 'Now';
+  if (getDateDifference(TimeUnit.MINUTE, commentDate) < 1) {
+    return COMMENT_TIME_NOW;
   }
 
-  if (getDateDifference('hours', commentDate) < 1) {
-    return 'A few minutes ago';
+  if (getDateDifference(TimeUnit.MINUTE, commentDate) < 1) {
+    return COMMENT_TIME_MINUTES_AGO;
   }
 
-  if (getDateDifference('days', commentDate) < 1) {
-    return 'A few hours ago';
+  if (getDateDifference(TimeUnit.DAY, commentDate) < 1) {
+    return COMMENT_TIME_HOURS_AGO;
   }
 
-  if (getDateDifference('months', commentDate) < 1) {
-    if (getDateDifference('days', commentDate) === 1){
-      return 'A day ago';
+  if (getDateDifference(TimeUnit.MONTH, commentDate) < 1) {
+    if (getDateDifference(TimeUnit.DAY, commentDate) === 1){
+      return COMMENT_TIME_DAY_AGO;
     }
-    if (getDateDifference('days', commentDate) > 1) {
-      return `${getDateDifference('days', commentDate)} days ago`;
-    }
-  }
-
-  if (getDateDifference('years', commentDate) < 1) {
-    if (getDateDifference('months', commentDate) === 1){
-      return 'A month ago';
-    }
-    if (getDateDifference('months', commentDate) > 1) {
-      return `${getDateDifference('months', commentDate)} months ago`;
+    if (getDateDifference(TimeUnit.DAY, commentDate) > 1) {
+      return `${getDateDifference(TimeUnit.DAY, commentDate)} ${COMMENT_TIME_DAYS_AGO}`;
     }
   }
 
-  if (getDateDifference('years', commentDate) > 1) {
-    if (getDateDifference('years', commentDate) === 1){
-      return 'A year ago';
+  if (getDateDifference(TimeUnit.YEAR, commentDate) < 1) {
+    if (getDateDifference(TimeUnit.MONTH, commentDate) === 1){
+      return COMMENT_TIME_MONTH_AGO;
     }
-    if (getDateDifference('years', commentDate) > 1) {
-      return `${getDateDifference('year', commentDate)} years ago`;
+    if (getDateDifference(TimeUnit.MONTH, commentDate) > 1) {
+      return `${getDateDifference(TimeUnit.MONTH, commentDate)} ${COMMENT_TIME_MONTHS_AGO}`;
+    }
+  }
+
+  if (getDateDifference(TimeUnit.YEAR, commentDate) > 1) {
+    if (getDateDifference(TimeUnit.YEAR, commentDate) === 1){
+      return COMMENT_TIME_YEAR_AGO;
+    }
+    if (getDateDifference(TimeUnit.YEAR, commentDate) > 1) {
+      return `${getDateDifference(TimeUnit.YEAR, commentDate)} ${COMMENT_TIME_YEARS_AGO}`;
     }
   }
 
