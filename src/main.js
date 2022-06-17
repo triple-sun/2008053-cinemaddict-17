@@ -16,6 +16,7 @@ const navigationPresenter = new MoviesFiltersPresenter(moviesModel, filterModel)
 const moviesSectionPresenter = new MoviesSectionPresenter(moviesModel, filterModel, commentsModel);
 
 moviesModel.init()
-  .then(moviesSectionPresenter.init())
   .finally(navigationPresenter.init());
+
+moviesSectionPresenter.init();
 
