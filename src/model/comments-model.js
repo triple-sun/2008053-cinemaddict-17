@@ -1,6 +1,6 @@
 import Observable from '../framework/observable.js';
 import { UpdateType } from '../const.js';
-import { convertSnakeCaseKeysToCamelCase, findItemIndex } from '../utils/common.js';
+import { convertSnakeCaseKeysToCamelCase, findItemIndexByID } from '../utils/common.js';
 
 export default class CommentsModel extends Observable {
   #moviesApiService = null;
@@ -25,6 +25,7 @@ export default class CommentsModel extends Observable {
     this.#movie = movie;
     try {
       this.#comments = await this.#moviesApiService.getComments(movie);
+      this.#failedToLoadComments = false;
     } catch (err) {
       this.#comments = [];
       this.#failedToLoadComments = true;
@@ -36,14 +37,18 @@ export default class CommentsModel extends Observable {
     try {
       const response = await this.#moviesApiService.addComment(this.#movie, comment);
       this.#comments = [...this.#adaptToClient(response).comments];
-      this._notify(updateType, this.#adaptToClient(response).movie);
+      this._notify(updateType, this.#comments);
     } catch (err) {
       throw new Error('Can\'t add comment');
     }
   };
 
   deleteComment = async (updateType, comment) => {
-    const index = findItemIndex(this.#movie.comments, comment.id);
+    const index = findItemIndexByID(this.#comments, comment.id);
+
+    if (index === -1) {
+      throw new Error('Can\'t delete unexisting comment');
+    }
 
     try {
       await this.#moviesApiService.deleteComment(comment);
@@ -51,10 +56,11 @@ export default class CommentsModel extends Observable {
         ...this.#comments.slice(0, index),
         ...this.#comments.slice(index + 1),
       ];
-      this._notify(updateType, this.#movie);
     } catch (err) {
       throw new Error('Can\'t delete comment');
     }
+    this._notify(updateType, this.#comments);
+
   };
 
   #adaptToClient = (comment) => convertSnakeCaseKeysToCamelCase(comment);

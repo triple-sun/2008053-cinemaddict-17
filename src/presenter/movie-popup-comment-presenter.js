@@ -34,5 +34,5 @@ export default class MoviePopupCommentPresenter {
 
   #renderComment = () =>  render(this.#moviePopupCommentComponent, this.#commentsContainerComponent.element);
 
-  #handleDeleteButtonClick = (comment) => this.#handleCommentAction(UserAction.DELETE_COMMENT, UpdateType.MINOR, comment);
+  #handleDeleteButtonClick = (comment) => this.#handleCommentAction(UserAction.DELETE_COMMENT, UpdateType.PATCH, comment);
 }

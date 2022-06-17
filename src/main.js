@@ -15,6 +15,6 @@ const commentsModel = new CommentsModel(moviesApiService);
 const navigationPresenter = new MoviesFiltersPresenter(moviesModel, filterModel);
 const moviesSectionPresenter = new MoviesSectionPresenter(moviesModel, filterModel, commentsModel);
 
-moviesModel.init();
-navigationPresenter.init();
+moviesModel.init()
+  .finally(navigationPresenter.init());
 moviesSectionPresenter.init();

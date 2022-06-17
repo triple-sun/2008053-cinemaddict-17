@@ -110,11 +110,11 @@ const humanizeCommentDate = (date) => {
   return humanizeCommentDateTime(date);
 };
 
-const findItemIndex = (arr, itemToFind) => arr.findIndex((item) => item === itemToFind);
+const findItemIndexByID = (arr, idToFind) => arr.findIndex((item) => item.id === idToFind);
 
 export {
   convertSnakeCaseKeysToCamelCase,
   convertCamelCaseKeysToSnakeCase,
   humanizeCommentDate,
-  findItemIndex
+  findItemIndexByID
 };
