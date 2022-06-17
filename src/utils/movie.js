@@ -68,5 +68,5 @@ export {
   sortFilmsByDefault,
   sortFilmsByDateDown,
   sortFilmsByRatingDown,
-  sortMoviesByCommentsCount,
+  sortMoviesByCommentsCount
 };

@@ -27,7 +27,6 @@ const SortType = {
   DEFAULT: 'default',
   DATE: 'date',
   DATE_DOWN: 'date-down',
-  RATING: 'rating',
   RATING_DOWN: 'rating-down',
 };
 

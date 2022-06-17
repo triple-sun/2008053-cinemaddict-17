@@ -1,6 +1,6 @@
 import { render, remove, replace } from '../framework/render.js';
 import MoviePopupPresenter from './movie-popup-presenter.js';
-import { DOCUMENT_NO_SCROLL_CLASS, pageBody, UpdateType } from '../const.js';
+import { DOCUMENT_NO_SCROLL_CLASS, FilterType, pageBody, UpdateType } from '../const.js';
 import MovieCardLinkView from '../view/movies/movie-card/movie-card-link-view.js';
 import MovieCardView from '../view/movies/movie-card/movie-card-view.js';
 import MovieCardControlsView from '../view/movies/movie-card/movie-card-controls-view.js';
@@ -20,11 +20,20 @@ export default class MovieCardPresenter {
 
   #movieCardPresenters = null;
   #uiBlocker = null;
-  #updateMostCommentedMoviesList = null;
+  #updateMovieCardsBoard = null;
 
   #isPopupOpen = false;
 
-  constructor(moviesListContainerComponent, handleModelEvent, moviesModel, commentsModel, filterModel, movieCardPresenters, uiBlocker, updateMostCommentedMoviesList) {
+  constructor(
+    moviesListContainerComponent,
+    handleModelEvent,
+    moviesModel,
+    commentsModel,
+    filterModel,
+    movieCardPresenters,
+    uiBlocker,
+    updateMovieCardsBoard
+  ) {
     this.#moviesListContainerComponent = moviesListContainerComponent;
     this.#moviesModel = moviesModel;
     this.#commentsModel = commentsModel;
@@ -32,7 +41,7 @@ export default class MovieCardPresenter {
     this.#handleModelEvent = handleModelEvent;
     this.#movieCardPresenters = movieCardPresenters;
     this.#uiBlocker = uiBlocker;
-    this.#updateMostCommentedMoviesList = updateMostCommentedMoviesList;
+    this.#updateMovieCardsBoard = updateMovieCardsBoard;
   }
 
   init = (movie) => {
@@ -73,25 +82,31 @@ export default class MovieCardPresenter {
 
   hidePopup = () => {
     if (this.#popupPresenter) {
-      document.body.classList.remove(DOCUMENT_NO_SCROLL_CLASS);
+      pageBody.classList.remove(DOCUMENT_NO_SCROLL_CLASS);
+
       this.#popupPresenter.destroy();
+
       this.#isPopupOpen = false;
+
       this.#commentsModel.removeObserver(this.#handlePopupModelEvent);
+      this.#moviesModel.removeObserver(this.#handlePopupModelEvent);
+
+      this.#moviesModel.addObserver(this.#handleModelEvent);
     }
   };
 
-  #setMovieCardUpdateAborting = () => this.#movieCardControlsComponent.shake();
+  #setMovieCardUpdateAborting = () => this.#movieCardComponent.shake();
 
   #renderMovieCardLink = () => render(this.#movieCardLinkComponent, this.#movieCardComponent.element);
 
   #renderMovieCardControls = () => render(this.#movieCardControlsComponent, this.#movieCardComponent.element);
 
-  #handleMovieUserDataUpdate = (updateType, update) => {
+  #handleMovieUserDataUpdate = async (updateType, update) => {
     try {
-      this.#moviesModel.updateMovie(updateType, update);
+      await this.#moviesModel.updateMovie(updateType, update);
     } catch (err) {
       if (this.#isPopupOpen) {
-        this.#popupPresenter.setMovieUpdateAborting();
+        this.#popupPresenter.setPopupMovieUpdateAborting();
         return;
       }
       this.#setMovieCardUpdateAborting();
@@ -103,6 +118,7 @@ export default class MovieCardPresenter {
 
     this.#popupPresenter = new MoviePopupPresenter(
       this.#commentsModel,
+      this.#filterModel,
       this.#hidePopup,
       this.#handleMovieUserDataUpdate
     );
@@ -112,9 +128,9 @@ export default class MovieCardPresenter {
 
     this.#isPopupOpen = true;
 
-    this.#commentsModel.addObserver(this.#handlePopupModelEvent);
     this.#moviesModel.removeObserver(this.#handleModelEvent);
     this.#moviesModel.addObserver(this.#handlePopupModelEvent);
+    this.#commentsModel.addObserver(this.#handlePopupModelEvent);
 
     pageBody.classList.add(DOCUMENT_NO_SCROLL_CLASS);
   };
@@ -130,7 +146,12 @@ export default class MovieCardPresenter {
         if (this.#movieCardPresenters.get(update.updatedMovie.id)) {
           this.#movieCardPresenters.get(update.updatedMovie.id).init(update.updatedMovie);
         }
-        this.#updateMostCommentedMoviesList(update.updatedMovies);
+        this.#updateMovieCardsBoard();
+        this.#popupPresenter.init(update.updatedMovie);
+        this.#popupPresenter.setPopupCommentsLoaded();
+        break;
+      case UpdateType.MAJOR:
+        this.#updateMovieCardsBoard();
         this.#popupPresenter.init(update.updatedMovie);
         this.#popupPresenter.setPopupCommentsLoaded();
         break;
@@ -143,8 +164,12 @@ export default class MovieCardPresenter {
   };
 
   #handleWatchlistClick = () => {
+    const isInFilteredMovies = this.#filterModel.filter === FilterType.WATCHLIST
+      ? UpdateType.MINOR
+      : UpdateType.PATCH;
+
     this.#handleMovieUserDataUpdate(
-      UpdateType.MINOR,
+      isInFilteredMovies,
       {
         ...this.#movie,
         userDetails: {
@@ -156,8 +181,12 @@ export default class MovieCardPresenter {
   };
 
   #handleAlreadyWatchedClick = () => {
+    const isInFilteredMovies = this.#filterModel.filter === FilterType.HISTORY
+      ? UpdateType.MINOR
+      : UpdateType.PATCH;
+
     this.#handleMovieUserDataUpdate(
-      UpdateType.MINOR,
+      isInFilteredMovies,
       {
         ...this.#movie,
         userDetails: {
@@ -168,8 +197,12 @@ export default class MovieCardPresenter {
   };
 
   #handleFavoriteClick = () => {
+    const isInFilteredMovies = this.#filterModel.filter === FilterType.FAVORITES
+      ? UpdateType.MINOR
+      : UpdateType.PATCH;
+
     this.#handleMovieUserDataUpdate(
-      UpdateType.MINOR,
+      isInFilteredMovies,
       {
         ...this.#movie,
         userDetails: {

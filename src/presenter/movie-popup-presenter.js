@@ -31,6 +31,7 @@ export default class MoviePopupPresenter {
   #popupNewCommentInputComponent = null;
 
   #commentsModel = null;
+  #filterModel = null;
   #handlePopupClose = null;
   #handleMovieUserDataUpdate = null;
 
@@ -38,8 +39,9 @@ export default class MoviePopupPresenter {
 
   #commentPresenters = new Map();
 
-  constructor (commentsModel, handlePopupClose, handleMovieUserDataUpdate) {
+  constructor (commentsModel, filterModel, handlePopupClose, handleMovieUserDataUpdate) {
     this.#commentsModel = commentsModel;
+    this.#filterModel = filterModel;
     this.#handlePopupClose = handlePopupClose;
     this.#handleMovieUserDataUpdate = handleMovieUserDataUpdate;
   }
