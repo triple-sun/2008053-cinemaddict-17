@@ -1,5 +1,5 @@
 import { remove, render, RenderPosition, replace } from '../framework/render.js';
-import { DOCUMENT_NO_SCROLL_CLASS, pageBody, pageFooterSection, UpdateType, UserAction } from '../const.js';
+import { pageBody, pageFooterSection, UpdateType, UserAction } from '../const.js';
 import MoviePopupCommentPresenter from './movie-popup-comment-presenter.js';
 import MoviePopupSectionView from '../view/movies/movie-popup/movie-popup-section-view.js';
 import MoviePopupTopContainerView from '../view/movies/movie-popup/movie-popup-top-container-view.js';
@@ -37,8 +37,6 @@ export default class MoviePopupPresenter {
   #scrollPosition = null;
 
   #commentPresenters = new Map();
-
-  #isLoading = true;
 
   constructor (commentsModel, handlePopupClose, handleMovieUserDataUpdate) {
     this.#commentsModel = commentsModel;
@@ -79,14 +77,13 @@ export default class MoviePopupPresenter {
 
     this.#renderPopupComments(this.#commentsModel.comments);
 
+    document.addEventListener('keydown', this.#popupEscKeydownHandler);
+
     this.#popupCloseButtonComponent.setCloseButtonClickHandler(this.#handlePopupClose);
 
     this.#popupControlsComponent.setWatchlistClickHandler(this.#handlePopupWatchlistClick);
-    this.#popupControlsComponent.setAlreadyWatchedClickHandler(this.#handlePopupWatchedClick);
+    this.#popupControlsComponent.setAlreadyWatchedClickHandler(this.#handlePopupAlreadyWatchedClick);
     this.#popupControlsComponent.setFavoriteClickHandler(this.#handlePopupFavoriteClick);
-
-    document.addEventListener('keydown', this.#popupEscKeydownHandler);
-    pageBody.classList.add(DOCUMENT_NO_SCROLL_CLASS);
 
     if (!prevPopupComponent) {
       render(this.#popupComponent, pageFooterSection, RenderPosition.AFTEREND);
@@ -114,11 +111,23 @@ export default class MoviePopupPresenter {
 
   setPopupMovieUpdateAborting = () => this.#popupTopContainerComponent.shake();
 
+  clearComments = () => {
+    this.#commentPresenters.forEach((presenter) => presenter.destroy());
+    this.#commentPresenters.clear();
+  };
+
+  updateComments = (comments) => {
+    const newCommentsCountComponent = new MoviePopupCommentsCountView(comments, this.#commentsModel.hadFailed);
+    replace(newCommentsCountComponent, this.#popupCommentsCountComponent);
+    this.#popupCommentsCountComponent = newCommentsCountComponent;
+    this.#renderPopupComments(comments);
+  };
+
   #scrollCommentsIntoView = () => this.#popupCommentsSectionComponent.element.scrollIntoView();
 
   #setNewCommentFormAdding = () => this.#popupNewCommentInputComponent.updateElement({isDisabled: true});
 
-  #resetNewCommentForm = () => this.#popupNewCommentInputComponent.updateElement({emotion: null, comment: null});
+  #resetNewCommentForm = () => this.#popupNewCommentInputComponent.updateElement({emotion: null, comment: null, isDisabled: false});
 
   #setNewCommentFormAborting = () => {
     const resetNewCommentFormState = () => this.#popupNewCommentInputComponent.updateElement({isDisabled: false});
@@ -129,7 +138,7 @@ export default class MoviePopupPresenter {
   #renderPopupForm = () => render(this.#popupFormComponent, this.#popupComponent.element);
 
   #renderComment = (comment) => {
-    const commentPresenter = new MoviePopupCommentPresenter(this.#popupCommentsSectionComponent, this.#handleCommentAction, this.#handleMovieCommentDelete);
+    const commentPresenter = new MoviePopupCommentPresenter(this.#popupCommentsSectionComponent, this.#handleCommentAction, this.#handleMovieCommentsUpdate);
     commentPresenter.init(comment);
     this.#commentPresenters.set(comment.id, commentPresenter);
   };
@@ -176,7 +185,7 @@ export default class MoviePopupPresenter {
     );
   };
 
-  #handlePopupWatchedClick = () => {
+  #handlePopupAlreadyWatchedClick = () => {
     this.#handleMovieUserDataUpdate(
       UpdateType.MINOR,
       {
@@ -202,10 +211,9 @@ export default class MoviePopupPresenter {
     );
   };
 
-  #handleMovieCommentDelete = () => {
-    this.#scrollPosition = this.#popupComponent.element.scrollTop;
-
+  #handleMovieCommentsUpdate = () => {
     const updatedComments = this.#commentsModel.comments.map((comment) => comment.id);
+    this.#scrollPosition = this.#popupComponent.element.scrollTop;
     this.#handleMovieUserDataUpdate(
       UpdateType.MINOR,
       {
@@ -224,6 +232,7 @@ export default class MoviePopupPresenter {
         try {
           await this.#commentsModel.addComment(updateType, update);
           this.#resetNewCommentForm();
+          this.#handleMovieCommentsUpdate(this.#movie);
           this.#scrollCommentsIntoView();
         } catch (err) {
           this.#setNewCommentFormAborting();
@@ -233,7 +242,7 @@ export default class MoviePopupPresenter {
         this.#commentPresenters.get(update.id).setDeleting(update);
         try {
           await this.#commentsModel.deleteComment(updateType, update);
-          this.#handleMovieCommentDelete(update);
+          this.#handleMovieCommentsUpdate(this.#movie);
           this.#popupNewCommentInputComponent.newCommentInputValues = newCommentValues;
         } catch (err) {
           this.#commentPresenters.get(update.id).setAborting();

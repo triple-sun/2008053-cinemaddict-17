@@ -88,7 +88,7 @@ export default class MoviePopupNewCommentView extends AbstractStatefulView {
     if ((this._state.comment && this._state.emotion) && (evt.code === 'Enter' && (evt.ctrlKey || evt.metaKey))) {
       const newComment = this.newCommentInputValues;
       evt.preventDefault();
-      this._state.handleCommentAction(UserAction.ADD_COMMENT, UpdateType.MINOR, newComment);
+      this._state.handleCommentAction(UserAction.ADD_COMMENT, UpdateType.PATCH, newComment);
     }
   };
 
@@ -102,7 +102,7 @@ export default class MoviePopupNewCommentView extends AbstractStatefulView {
     handleCommentAction,
     emotion: null,
     comment: null,
-    isDisabled: null,
+    isDisabled: false,
   });
 
   static parseStateToNewComment= (state) => {

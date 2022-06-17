@@ -1,6 +1,6 @@
 import Observable from '../framework/observable.js';
 import { UpdateType } from '../const.js';
-import { convertSnakeCaseKeysToCamelCase } from '../utils/common.js';
+import { convertSnakeCaseKeysToCamelCase, findItemIndexByID } from '../utils/common.js';
 
 export default class MoviesModel extends Observable {
   #moviesApiService = null;
@@ -31,8 +31,7 @@ export default class MoviesModel extends Observable {
   };
 
   updateMovie = async (updateType, update) => {
-
-    const index = this.#movies.findIndex((movie) => movie.id === update.id);
+    const index = findItemIndexByID(this.#movies, update.id);
 
     if (index === -1) {
       throw new Error('Can\'t update unexisting movie');
@@ -46,7 +45,10 @@ export default class MoviesModel extends Observable {
         updatedMovie,
         ...this.#movies.slice(index + 1),
       ];
-      this._notify(updateType, updatedMovie);
+      this._notify(updateType, {
+        updatedMovie: updatedMovie,
+        updatedMovies: this.#movies
+      });
     } catch(err) {
       throw new Error('Can\'t update movie');
     }
